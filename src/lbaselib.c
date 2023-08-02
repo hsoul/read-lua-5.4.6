@@ -197,12 +197,31 @@ static int pushmode (lua_State *L, int oldmode) {
 #define checkvalres(res) { if (res == -1) break; }
 
 static int luaB_collectgarbage (lua_State *L) {
-  static const char *const opts[] = {"stop", "restart", "collect",
-    "count", "step", "setpause", "setstepmul",
-    "isrunning", "generational", "incremental", NULL};
-  static const int optsnum[] = {LUA_GCSTOP, LUA_GCRESTART, LUA_GCCOLLECT,
-    LUA_GCCOUNT, LUA_GCSTEP, LUA_GCSETPAUSE, LUA_GCSETSTEPMUL,
-    LUA_GCISRUNNING, LUA_GCGEN, LUA_GCINC};
+  static const char *const opts[] = {
+    "stop",
+    "restart",
+    "collect",
+    "count",
+    "step",
+    "setpause",
+    "setstepmul",
+    "isrunning",
+    "generational",
+    "incremental",
+    NULL
+  };
+  static const int optsnum[] = {
+    LUA_GCSTOP,
+    LUA_GCRESTART,
+    LUA_GCCOLLECT,
+    LUA_GCCOUNT,
+    LUA_GCSTEP,
+    LUA_GCSETPAUSE, 
+    LUA_GCSETSTEPMUL,
+    LUA_GCISRUNNING,
+    LUA_GCGEN,
+    LUA_GCINC
+  };
   int o = optsnum[luaL_checkoption(L, 1, "collect", opts)];
   switch (o) {
     case LUA_GCCOUNT: {
