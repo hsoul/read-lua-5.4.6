@@ -1,0 +1,39 @@
+{
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "echosvr",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build_jobs_linux/publish/echosvr/bin/echosvr",
+            "args": [
+                "-id",
+                "0x12101",
+                "-c",
+                "../etc/echosvr-1.conf",
+                " -p",
+                "echosvr-1.pid",
+                "start",
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/build_jobs_linux/publish/echosvr/bin",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "为 gdb 启用整齐打印",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": false
+                }
+            ],
+            "preLaunchTask": "build",
+            "miDebuggerPath": "/opt/rh/devtoolset-11/root/usr/bin/gdb",
+            // "miDebuggerPath": "/usr/bin/cgdb",
+            "miDebuggerArgs": "-q -ex quit; wait() { fg >/dev/null; }; /bin/gdb -q --interpreter=mi"
+        },
+    ]
+}

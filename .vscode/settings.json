@@ -1,0 +1,23 @@
+{
+    "clang-format.executable": "/usr/local/bin/clang-format",
+    "editor.formatOnSave": false,
+    "editor.defaultFormatter": "xaver.clang-format",
+    "clangd.arguments": [
+        "--compile-commands-dir=${workspaceFolder}/",
+        "--completion-style=detailed",
+        "--header-insertion=iwyu",
+        "-log=verbose",
+        "-pretty",
+        "--clang-tidy"
+    ],
+    "clangd.onConfigChanged": "restart",
+    "clangd.path": "/usr/local/bin/clangd",
+    "search.useIgnoreFiles": true,
+    "files.exclude" : {
+        "**/third_party/fmt":true,
+        "**/*.o":true,
+        "**/.cache":true,
+    },
+    "editor.formatOnPaste": false,
+    "editor.semanticHighlighting.enabled": true,
+}
