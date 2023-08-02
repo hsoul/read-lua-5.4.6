@@ -103,3 +103,7 @@ $RECYCLE.BIN/
 
 *.o
 .cache/*
+
+src/liblua.a
+src/lua
+src/luac
