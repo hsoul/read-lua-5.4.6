@@ -5,21 +5,15 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "echosvr",
+            "name": "ltest",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build_jobs_linux/publish/echosvr/bin/echosvr",
+            "program": "${workspaceFolder}/src/lua",
             "args": [
-                "-id",
-                "0x12101",
-                "-c",
-                "../etc/echosvr-1.conf",
-                " -p",
-                "echosvr-1.pid",
-                "start",
+                "test.lua",
             ],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/build_jobs_linux/publish/echosvr/bin",
+            "cwd": "${workspaceFolder}/ltest",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
@@ -30,8 +24,8 @@
                     "ignoreFailures": false
                 }
             ],
-            "preLaunchTask": "build",
-            "miDebuggerPath": "/opt/rh/devtoolset-11/root/usr/bin/gdb",
+            // "preLaunchTask": "build",
+            "miDebuggerPath": "/usr/bin/gdb",
             // "miDebuggerPath": "/usr/bin/cgdb",
             "miDebuggerArgs": "-q -ex quit; wait() { fg >/dev/null; }; /bin/gdb -q --interpreter=mi"
         },
