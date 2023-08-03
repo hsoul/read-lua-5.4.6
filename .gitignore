@@ -107,3 +107,6 @@ $RECYCLE.BIN/
 src/liblua.a
 src/lua
 src/luac
+
+build
+include
