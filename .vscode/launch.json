@@ -1,33 +1,59 @@
 {
-    // 使用 IntelliSense 了解相关属性。 
-    // 悬停以查看现有属性的描述。
-    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "ltest",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/lua",
-            "args": [
-                "test.lua",
-            ],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/ltest",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "gdb",
-            "setupCommands": [
-                {
-                    "description": "为 gdb 启用整齐打印",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": false
-                }
-            ],
-            // "preLaunchTask": "build",
-            "miDebuggerPath": "/usr/bin/gdb",
-            // "miDebuggerPath": "/usr/bin/cgdb",
-            "miDebuggerArgs": "-q -ex quit; wait() { fg >/dev/null; }; /bin/gdb -q --interpreter=mi"
-        },
-    ]
+  // 使用 IntelliSense 了解相关属性。 
+  // 悬停以查看现有属性的描述。
+  // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "lua",
+      "request": "launch",
+      "tag": "normal",
+      "name": "LuaPanda",
+      "description": "通用模式,通常调试项目请选择此模式 | launchVer:3.2.0",
+      "cwd": "${workspaceFolder}",
+      "luaFileExtension": "",
+      "connectionPort": 8818,
+      "stopOnEntry": true,
+      "useCHook": true,
+      "autoPathMode": true
+    },
+    {
+      "type": "lua",
+      "request": "launch",
+      "tag": "independent_file",
+      "name": "LuaPanda-IndependentFile",
+      "description": "独立文件调试模式,使用前请参考文档",
+      "luaPath": "",
+      "packagePath": [],
+      "luaFileExtension": "",
+      "connectionPort": 8820,
+      "stopOnEntry": true,
+      "useCHook": true
+    },
+    {
+      "name": "ltest",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/lua",
+      "args": [
+          "test.lua",
+      ],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}/ltest",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [
+          {
+              "description": "为 gdb 启用整齐打印",
+              "text": "-enable-pretty-printing",
+              "ignoreFailures": false
+          }
+      ],
+      // "preLaunchTask": "build",
+      "miDebuggerPath": "/usr/bin/gdb",
+      // "miDebuggerPath": "/usr/bin/cgdb",
+      "miDebuggerArgs": "-q -ex quit; wait() { fg >/dev/null; }; /bin/gdb -q --interpreter=mi"
+    },
+  ]
 }
