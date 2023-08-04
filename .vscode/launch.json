@@ -55,5 +55,30 @@
       // "miDebuggerPath": "/usr/bin/cgdb",
       "miDebuggerArgs": "-q -ex quit; wait() { fg >/dev/null; }; /bin/gdb -q --interpreter=mi"
     },
+    {
+      "name": "ctest",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/bin/p1_test",
+      "args": [
+          // "test.lua",
+      ],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}/",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [
+          {
+              "description": "为 gdb 启用整齐打印",
+              "text": "-enable-pretty-printing",
+              "ignoreFailures": false
+          }
+      ],
+      // "preLaunchTask": "build",
+      "miDebuggerPath": "/usr/bin/gdb",
+      // "miDebuggerPath": "/usr/bin/cgdb",
+      "miDebuggerArgs": "-q -ex quit; wait() { fg >/dev/null; }; /bin/gdb -q --interpreter=mi"
+    },
   ]
 }

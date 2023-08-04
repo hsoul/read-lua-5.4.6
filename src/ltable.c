@@ -726,13 +726,13 @@ void luaH_newkey(lua_State *L, Table *t, const TValue *key, TValue *value)
     if (othern != mp) /* is colliding node out of its main position? */
     {
       /* yes; move colliding node into free position */
-      while (othern + gnext(othern) != mp) /* find previous */
+      while (othern + gnext(othern) != mp) /* find previous */ // 如果此时位置上占的元素不是此元素的主位置，那从主位置链表头开始遍历，找到前一个元素，然后将其next指向空位置f,之后将mp赋值到f
         othern += gnext(othern);
       gnext(othern) = cast_int(f - othern); /* rechain to point to 'f' */
       *f = *mp;                             /* copy colliding node into free pos. (mp->next also goes) */
       if (gnext(mp) != 0)
       {
-        gnext(f) += cast_int(mp - f); /* correct 'next' */
+        gnext(f) += cast_int(mp - f); /* correct 'next' */ // 重新计算next的与当前节点的ptr_diff
         gnext(mp) = 0;                /* now 'mp' is free */
       }
       setempty(gval(mp));
@@ -744,7 +744,7 @@ void luaH_newkey(lua_State *L, Table *t, const TValue *key, TValue *value)
         gnext(f) = cast_int((mp + gnext(mp)) - f); /* chain new position */
       else
         lua_assert(gnext(f) == 0);
-      gnext(mp) = cast_int(f - mp);
+      gnext(mp) = cast_int(f - mp); // 从主位置用diff_ptr串成链表
       mp = f;
     }
   }

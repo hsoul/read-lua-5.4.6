@@ -78,16 +78,16 @@ add_library(lua_internal INTERFACE)
 
 add_library(lua_include INTERFACE)
 
-file (
-  COPY
-    src/lauxlib.h 
-    src/luaconf.h 
-    src/lua.h 
-    src/lua.hpp 
-    src/lualib.h
-  DESTINATION
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/
-)
+# file (
+#   COPY
+#     src/lauxlib.h 
+#     src/luaconf.h 
+#     src/lua.h 
+#     src/lua.hpp 
+#     src/lualib.h
+#   DESTINATION
+#     ${CMAKE_CURRENT_SOURCE_DIR}/include/
+# )
 
 target_include_directories(lua_include INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -124,6 +124,12 @@ set_target_properties(
     PROPERTIES
       VERSION "${PACKAGE_VERSION}"
 )
+if(UNIX)
+  target_compile_options(lua_static
+    PUBLIC
+      "-DLUA_USE_DLOPEN"
+  )
+endif()
 
 list(APPEND TARGETS_TO_INSTALL lua_static)
 if(NOT BUILD_SHARED_LIBS OR NOT LUA_ENABLE_SHARED)
