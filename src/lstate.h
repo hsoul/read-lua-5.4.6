@@ -369,7 +369,7 @@ union GCUnion
 ** macro to convert a Lua object into a GCObject
 ** (The access to 'tt' tries to ensure that 'v' is actually a Lua object.)
 */
-#define obj2gco(v) check_exp((v)->tt >= LUA_TSTRING, &(cast_u(v)->gc))
+#define obj2gco(v) check_exp((v)->tt >= LUA_TSTRING, &(cast_u(v)->gc)) // string table function userdata thread 可以转换为gcobject，gcobject可以设置到Value gc中
 
 /* actual number of total bytes allocated */
 #define gettotalbytes(g) cast(lu_mem, (g)->totalbytes + (g)->GCdebt)

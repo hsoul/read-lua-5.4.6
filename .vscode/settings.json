@@ -3,7 +3,7 @@
     "editor.formatOnSave": false,
     "editor.defaultFormatter": "xaver.clang-format",
     "clangd.arguments": [
-        "--compile-commands-dir=${workspaceFolder}/",
+        "--compile-commands-dir=${workspaceFolder}/build",
         "--completion-style=detailed",
         "--header-insertion=iwyu",
         "-log=verbose",

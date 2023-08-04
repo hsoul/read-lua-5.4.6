@@ -83,11 +83,13 @@
 #define dummynode (&dummynode_)
 
 static const Node dummynode_ = {
-  {{NULL},
-   LUA_VEMPTY, /* value's value and type */
-   LUA_VNIL,
-   0,
-   {NULL}}  /* key type, next, and key value */
+  {
+    {NULL},
+    LUA_VEMPTY, /* value's value and type */
+    LUA_VNIL,
+    0,
+    {NULL} //
+  }        /* key type, next, and key value */
 };
 
 static const TValue absentkey = {ABSTKEYCONSTANT};
@@ -680,6 +682,9 @@ static Node *getfreepos(Table *t)
 ** position or not: if it is not, move colliding node to an empty place and
 ** put new key in its main position; otherwise (colliding node is in its main
 ** position), new key goes to an empty position.
+** 向哈希表中插入一个新键；首先，检查键的主位置是否空闲。
+** 如果不是，则检查碰撞节点是否在其主位置上：如果不在，则将碰撞节点移到空位置，并将新键放到其主位置上；
+** 否则（碰撞节点在其主位置上），新键放到空位置上
 */
 void luaH_newkey(lua_State *L, Table *t, const TValue *key, TValue *value)
 {
@@ -709,8 +714,8 @@ void luaH_newkey(lua_State *L, Table *t, const TValue *key, TValue *value)
   {
     Node *othern;
     Node *f = getfreepos(t); /* get a free place */
-    if (f == NULL)
-    {                    /* cannot find a free place? */
+    if (f == NULL)           /* cannot find a free place? */
+    {
       rehash(L, t, key); /* grow table */
       /* whatever called 'newkey' takes care of TM cache */
       luaH_set(L, t, key, value); /* insert key into grown table */
@@ -911,8 +916,7 @@ static lua_Unsigned hash_search(Table *t, lua_Unsigned j)
       else                            /* weird case */
         return j;                     /* well, max integer is a boundary... */
     }
-  }
-  while (!isempty(luaH_getint(t, j))); /* repeat until an absent t[j] */
+  } while (!isempty(luaH_getint(t, j))); /* repeat until an absent t[j] */
   /* i < j  &&  t[i] present  &&  t[j] absent */
   while (j - i > 1u)
   { /* do a binary search between them */
