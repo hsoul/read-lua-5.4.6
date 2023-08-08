@@ -558,12 +558,12 @@ typedef struct AbsLineInfo
 typedef struct Proto
 {
   CommonHeader;
-  lu_byte numparams; /* number of fixed (named) parameters */
-  lu_byte is_vararg;
+  lu_byte numparams;    /* number of fixed (named) parameters */
+  lu_byte is_vararg;    // 标记lua函数参数列表是否为变长参数，0表示不是，1表示是
   lu_byte maxstacksize; /* number of registers needed by this function */
   int sizeupvalues;     /* size of 'upvalues' */
   int sizek;            /* size of 'k' */
-  int sizecode;
+  int sizecode;         // code 指令列表的长度
   int sizelineinfo;
   int sizep; /* size of 'p' */
   int sizelocvars;
@@ -571,7 +571,7 @@ typedef struct Proto
   int linedefined;          /* debug information  */
   int lastlinedefined;      /* debug information  */
   TValue *k;                /* constants used by the function */
-  Instruction *code;        /* opcodes */
+  Instruction *code;        /* opcodes*/
   struct Proto **p;         /* functions defined inside the function */
   Upvaldesc *upvalues;      /* upvalue information */
   ls_byte *lineinfo;        /* information about source lines (debug information) */

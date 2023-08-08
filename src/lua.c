@@ -84,18 +84,18 @@ static void print_usage(const char *badoption)
   else
     lua_writestringerror("unrecognized option '%s'\n", badoption);
   lua_writestringerror(
-      "usage: %s [options] [script [args]]\n"
-      "Available options are:\n"
-      "  -e stat   execute string 'stat'\n"
-      "  -i        enter interactive mode after executing 'script'\n"
-      "  -l mod    require library 'mod' into global 'mod'\n"
-      "  -l g=mod  require library 'mod' into global 'g'\n"
-      "  -v        show version information\n"
-      "  -E        ignore environment variables\n"
-      "  -W        turn warnings on\n"
-      "  --        stop handling options\n"
-      "  -         stop handling options and execute stdin\n",
-      progname);
+    "usage: %s [options] [script [args]]\n"
+    "Available options are:\n"
+    "  -e stat   execute string 'stat'\n"
+    "  -i        enter interactive mode after executing 'script'\n"
+    "  -l mod    require library 'mod' into global 'mod'\n"
+    "  -l g=mod  require library 'mod' into global 'g'\n"
+    "  -v        show version information\n"
+    "  -E        ignore environment variables\n"
+    "  -W        turn warnings on\n"
+    "  --        stop handling options\n"
+    "  -         stop handling options and execute stdin\n",
+    progname);
 }
 
 /*
@@ -358,8 +358,8 @@ static int runargs(lua_State *L, char **argv, int n)
           extra = argv[++i];
         lua_assert(extra != NULL);
         status = (option == 'e')
-                     ? dostring(L, extra, "=(command line)")
-                     : dolibrary(L, extra);
+                   ? dostring(L, extra, "=(command line)")
+                   : dolibrary(L, extra);
         if (status != LUA_OK)
           return 0;
         break;

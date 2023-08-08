@@ -116,8 +116,8 @@ struct lua_longjmp; /* defined in ldo.c */
 ** is thread safe
 */
 #if !defined(l_signalT)
-    #include <signal.h>
-    #define l_signalT sig_atomic_t
+  #include <signal.h>
+  #define l_signalT sig_atomic_t
 #endif
 
 /*
@@ -139,9 +139,9 @@ struct lua_longjmp; /* defined in ldo.c */
 
 typedef struct stringtable
 {
-    TString **hash;
-    int nuse; /* number of elements */
-    int size;
+  TString **hash;
+  int nuse; /* number of elements */
+  int size;
 } stringtable;
 
 /*
@@ -161,37 +161,37 @@ typedef struct stringtable
 */
 struct CallInfo
 {
-    StkIdRel func;                    /* function index in the stack */
-    StkIdRel top;                     /* top for this function */
-    struct CallInfo *previous, *next; /* dynamic call link */
-    union
-    {
-        struct
-        { /* only for Lua functions */
-            const Instruction *savedpc;
-            volatile l_signalT trap;
-            int nextraargs; /* # of extra arguments in vararg functions */
-        } l;
-        struct
-        {                    /* only for C functions */
-            lua_KFunction k; /* continuation in case of yields */
-            ptrdiff_t old_errfunc;
-            lua_KContext ctx; /* context info. in case of yields */
-        } c;
-    } u;
-    union
-    {
-        int funcidx; /* called-function index */
-        int nyield;  /* number of values yielded */
-        int nres;    /* number of values returned */
-        struct
-        {                             /* info about transferred values (for call/return hooks) */
-            unsigned short ftransfer; /* offset of first value transferred */
-            unsigned short ntransfer; /* number of values transferred */
-        } transferinfo;
-    } u2;
-    short nresults; /* expected number of results from this function */
-    unsigned short callstatus;
+  StkIdRel func;                    /* function index in the stack */
+  StkIdRel top;                     /* top for this function */
+  struct CallInfo *previous, *next; /* dynamic call link */
+  union
+  {
+    struct
+    { /* only for Lua functions */
+      const Instruction *savedpc;
+      volatile l_signalT trap;
+      int nextraargs; /* # of extra arguments in vararg functions */
+    } l;
+    struct
+    {                  /* only for C functions */
+      lua_KFunction k; /* continuation in case of yields */
+      ptrdiff_t old_errfunc;
+      lua_KContext ctx; /* context info. in case of yields */
+    } c;
+  } u;
+  union
+  {
+    int funcidx; /* called-function index */
+    int nyield;  /* number of values yielded */
+    int nres;    /* number of values returned */
+    struct
+    {                           /* info about transferred values (for call/return hooks) */
+      unsigned short ftransfer; /* offset of first value transferred */
+      unsigned short ntransfer; /* number of values transferred */
+    } transferinfo;
+  } u2;
+  short nresults; /* expected number of results from this function */
+  unsigned short callstatus;
 };
 
 /*
@@ -210,7 +210,7 @@ struct CallInfo
 /* Bits 10-12 are used for CIST_RECST (see below) */
 #define CIST_RECST 10
 #if defined(LUA_COMPAT_LT_LE)
-    #define CIST_LEQ (1 << 13) /* using __lt for __le */
+  #define CIST_LEQ (1 << 13) /* using __lt for __le */
 #endif
 
 /*
@@ -220,9 +220,9 @@ struct CallInfo
 ** because of an error.  (Three bits are enough for error status.)
 */
 #define getcistrecst(ci) (((ci)->callstatus >> CIST_RECST) & 7)
-#define setcistrecst(ci, st)                                          \
-    check_exp(((st) & 7) == (st), /* status must fit in three bits */ \
-              ((ci)->callstatus = ((ci)->callstatus & ~(7 << CIST_RECST)) | ((st) << CIST_RECST)))
+#define setcistrecst(ci, st)                                        \
+  check_exp(((st) & 7) == (st), /* status must fit in three bits */ \
+            ((ci)->callstatus = ((ci)->callstatus & ~(7 << CIST_RECST)) | ((st) << CIST_RECST)))
 
 /* active function is a Lua function */
 #define isLua(ci) (!((ci)->callstatus & CIST_C))
@@ -239,54 +239,54 @@ struct CallInfo
 */
 typedef struct global_State
 {
-    lua_Alloc frealloc; /* function to reallocate memory */
-    void *ud;           /* auxiliary data to 'frealloc' */
-    l_mem totalbytes;   /* number of bytes currently allocated - GCdebt */
-    l_mem GCdebt;       /* bytes allocated not yet compensated by the collector */
-    lu_mem GCestimate;  /* an estimate of the non-garbage memory in use */
-    lu_mem lastatomic;  /* see function 'genstep' in file 'lgc.c' */
-    stringtable strt;   /* hash table for strings */
-    TValue l_registry;
-    TValue nilvalue;   /* a nil value */
-    unsigned int seed; /* randomized seed for hashes */
-    lu_byte currentwhite;
-    lu_byte gcstate;     /* state of garbage collector */
-    lu_byte gckind;      /* kind of GC running */
-    lu_byte gcstopem;    /* stops emergency collections */
-    lu_byte genminormul; /* control for minor generational collections */
-    lu_byte genmajormul; /* control for major generational collections */
-    lu_byte gcstp;       /* control whether GC is running */
-    lu_byte gcemergency; /* true if this is an emergency collection */
-    lu_byte gcpause;     /* size of pause between successive GCs */
-    lu_byte gcstepmul;   /* GC "speed" */
-    lu_byte gcstepsize;  /* (log2 of) GC granularity */
-    GCObject *allgc;     /* list of all collectable objects */
-    GCObject **sweepgc;  /* current position of sweep in list */
-    GCObject *finobj;    /* list of collectable objects with finalizers */ // 带 __gc meta函数的对象列表
-    GCObject *gray;      /* list of gray objects */
-    GCObject *grayagain; /* list of objects to be traversed atomically */
-    GCObject *weak;      /* list of tables with weak values */
-    GCObject *ephemeron; /* list of ephemeron tables (weak keys) */
-    GCObject *allweak;   /* list of all-weak tables */
-    GCObject *tobefnz;   /* list of userdata to be GC */
-    GCObject *fixedgc;   /* list of objects not to be collected */
-    /* fields for generational collector */
-    GCObject *survival;      /* start of objects that survived one GC cycle */
-    GCObject *old1;          /* start of old1 objects */
-    GCObject *reallyold;     /* objects more than one cycle old ("really old") */
-    GCObject *firstold1;     /* first OLD1 object in the list (if any) */
-    GCObject *finobjsur;     /* list of survival objects with finalizers */
-    GCObject *finobjold1;    /* list of old1 objects with finalizers */
-    GCObject *finobjrold;    /* list of really old objects with finalizers */
-    struct lua_State *twups; /* list of threads with open upvalues */
-    lua_CFunction panic;     /* to be called in unprotected errors */
-    struct lua_State *mainthread;
-    TString *memerrmsg;                        /* message for memory-allocation errors */
-    TString *tmname[TM_N];                     /* array with tag-method names */
-    struct Table *mt[LUA_NUMTYPES];            /* metatables for basic types */
-    TString *strcache[STRCACHE_N][STRCACHE_M]; /* cache for strings in API */
-    lua_WarnFunction warnf;                    /* warning function */
-    void *ud_warn;                             /* auxiliary data to 'warnf' */
+  lua_Alloc frealloc; /* function to reallocate memory */
+  void *ud;           /* auxiliary data to 'frealloc' */
+  l_mem totalbytes;   /* number of bytes currently allocated - GCdebt */
+  l_mem GCdebt;       /* bytes allocated not yet compensated by the collector */
+  lu_mem GCestimate;  /* an estimate of the non-garbage memory in use */
+  lu_mem lastatomic;  /* see function 'genstep' in file 'lgc.c' */
+  stringtable strt;   /* hash table for strings */
+  TValue l_registry;
+  TValue nilvalue;   /* a nil value */
+  unsigned int seed; /* randomized seed for hashes */
+  lu_byte currentwhite;
+  lu_byte gcstate;                                                    /* state of garbage collector */
+  lu_byte gckind;                                                     /* kind of GC running */
+  lu_byte gcstopem;                                                   /* stops emergency collections */
+  lu_byte genminormul;                                                /* control for minor generational collections */
+  lu_byte genmajormul;                                                /* control for major generational collections */
+  lu_byte gcstp;                                                      /* control whether GC is running */
+  lu_byte gcemergency;                                                /* true if this is an emergency collection */
+  lu_byte gcpause;                                                    /* size of pause between successive GCs */
+  lu_byte gcstepmul;                                                  /* GC "speed" */
+  lu_byte gcstepsize;                                                 /* (log2 of) GC granularity */
+  GCObject *allgc;                                                    /* list of all collectable objects */
+  GCObject **sweepgc;                                                 /* current position of sweep in list */
+  GCObject *finobj; /* list of collectable objects with finalizers */ // 带 __gc meta函数的对象列表
+  GCObject *gray;                                                     /* list of gray objects */
+  GCObject *grayagain;                                                /* list of objects to be traversed atomically */
+  GCObject *weak;                                                     /* list of tables with weak values */
+  GCObject *ephemeron;                                                /* list of ephemeron tables (weak keys) */
+  GCObject *allweak;                                                  /* list of all-weak tables */
+  GCObject *tobefnz;                                                  /* list of userdata to be GC */
+  GCObject *fixedgc;                                                  /* list of objects not to be collected */
+  /* fields for generational collector */
+  GCObject *survival;      /* start of objects that survived one GC cycle */
+  GCObject *old1;          /* start of old1 objects */
+  GCObject *reallyold;     /* objects more than one cycle old ("really old") */
+  GCObject *firstold1;     /* first OLD1 object in the list (if any) */
+  GCObject *finobjsur;     /* list of survival objects with finalizers */
+  GCObject *finobjold1;    /* list of old1 objects with finalizers */
+  GCObject *finobjrold;    /* list of really old objects with finalizers */
+  struct lua_State *twups; /* list of threads with open upvalues */
+  lua_CFunction panic;     /* to be called in unprotected errors */
+  struct lua_State *mainthread;
+  TString *memerrmsg;                        /* message for memory-allocation errors */
+  TString *tmname[TM_N];                     /* array with tag-method names */
+  struct Table *mt[LUA_NUMTYPES];            /* metatables for basic types */
+  TString *strcache[STRCACHE_N][STRCACHE_M]; /* cache for strings in API */
+  lua_WarnFunction warnf;                    /* warning function */
+  void *ud_warn;                             /* auxiliary data to 'warnf' */
 } global_State;
 
 /*
@@ -294,28 +294,28 @@ typedef struct global_State
 */
 struct lua_State
 {
-    CommonHeader;
-    lu_byte status;
-    lu_byte allowhook;
-    unsigned short nci; /* number of items in 'ci' list */
-    StkIdRel top;       /* first free slot in the stack */
-    global_State *l_G;
-    CallInfo *ci;        /* call info for current function */
-    StkIdRel stack_last; /* end of stack (last element + 1) */
-    StkIdRel stack;      /* stack base */
-    UpVal *openupval;    /* list of open upvalues in this stack */
-    StkIdRel tbclist;    /* list of to-be-closed variables */
-    GCObject *gclist; // 这个是挂在gc链表上的指针，用于指向下一个gc对象
-    struct lua_State *twups;      /* list of threads with open upvalues */
-    struct lua_longjmp *errorJmp; /* current error recover point */
-    CallInfo base_ci;             /* CallInfo for first level (C calling Lua) */
-    volatile lua_Hook hook;
-    ptrdiff_t errfunc; /* current error handling function (stack index) */
-    l_uint32 nCcalls;  /* number of nested (non-yieldable | C)  calls */
-    int oldpc;         /* last pc traced */
-    int basehookcount;
-    int hookcount;
-    volatile l_signalT hookmask;
+  CommonHeader;
+  lu_byte status;
+  lu_byte allowhook;
+  unsigned short nci;           /* number of items in 'ci' list */
+  StkIdRel top;                 /* first free slot in the stack */
+  global_State *l_G;            //
+  CallInfo *ci;                 /* call info for current function */
+  StkIdRel stack_last;          /* end of stack (last element + 1) */
+  StkIdRel stack;               /* stack base */
+  UpVal *openupval;             /* list of open upvalues in this stack */
+  StkIdRel tbclist;             /* list of to-be-closed variables */
+  GCObject *gclist;             // 这个是挂在gc链表上的指针，用于指向下一个gc对象
+  struct lua_State *twups;      /* list of threads with open upvalues */
+  struct lua_longjmp *errorJmp; /* current error recover point */
+  CallInfo base_ci;             /* CallInfo for first level (C calling Lua) */
+  volatile lua_Hook hook;       //
+  ptrdiff_t errfunc;            /* current error handling function (stack index) */
+  l_uint32 nCcalls;             /* number of nested (non-yieldable | C)  calls */
+  int oldpc;                    /* last pc traced */
+  int basehookcount;
+  int hookcount;
+  volatile l_signalT hookmask;
 };
 
 #define G(L) (L->l_G)
@@ -337,14 +337,14 @@ struct lua_State
 */
 union GCUnion
 {
-    GCObject gc; /* common header */
-    struct TString ts;
-    struct Udata u;
-    union Closure cl;
-    struct Table h;
-    struct Proto p;
-    struct lua_State th; /* thread */
-    struct UpVal upv;
+  GCObject gc; /* common header */
+  struct TString ts;
+  struct Udata u;
+  union Closure cl;
+  struct Table h;
+  struct Proto p;
+  struct lua_State th; /* thread */
+  struct UpVal upv;
 };
 
 /*
@@ -355,15 +355,15 @@ union GCUnion
 #define cast_u(o) cast(union GCUnion *, (o))
 
 /* macros to convert a GCObject into a specific value */
-#define gco2ts(o)   check_exp(novariant((o)->tt) == LUA_TSTRING, &((cast_u(o))->ts))
-#define gco2u(o)    check_exp((o)->tt == LUA_VUSERDATA, &((cast_u(o))->u))
-#define gco2lcl(o)  check_exp((o)->tt == LUA_VLCL, &((cast_u(o))->cl.l))
-#define gco2ccl(o)  check_exp((o)->tt == LUA_VCCL, &((cast_u(o))->cl.c))
-#define gco2cl(o)   check_exp(novariant((o)->tt) == LUA_TFUNCTION, &((cast_u(o))->cl))
-#define gco2t(o)    check_exp((o)->tt == LUA_VTABLE, &((cast_u(o))->h))
-#define gco2p(o)    check_exp((o)->tt == LUA_VPROTO, &((cast_u(o))->p))
-#define gco2th(o)   check_exp((o)->tt == LUA_VTHREAD, &((cast_u(o))->th))
-#define gco2upv(o)  check_exp((o)->tt == LUA_VUPVAL, &((cast_u(o))->upv))
+#define gco2ts(o) check_exp(novariant((o)->tt) == LUA_TSTRING, &((cast_u(o))->ts))
+#define gco2u(o) check_exp((o)->tt == LUA_VUSERDATA, &((cast_u(o))->u))
+#define gco2lcl(o) check_exp((o)->tt == LUA_VLCL, &((cast_u(o))->cl.l))
+#define gco2ccl(o) check_exp((o)->tt == LUA_VCCL, &((cast_u(o))->cl.c))
+#define gco2cl(o) check_exp(novariant((o)->tt) == LUA_TFUNCTION, &((cast_u(o))->cl))
+#define gco2t(o) check_exp((o)->tt == LUA_VTABLE, &((cast_u(o))->h))
+#define gco2p(o) check_exp((o)->tt == LUA_VPROTO, &((cast_u(o))->p))
+#define gco2th(o) check_exp((o)->tt == LUA_VTHREAD, &((cast_u(o))->th))
+#define gco2upv(o) check_exp((o)->tt == LUA_VUPVAL, &((cast_u(o))->upv))
 
 /*
 ** macro to convert a Lua object into a GCObject
