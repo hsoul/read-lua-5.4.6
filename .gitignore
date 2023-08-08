@@ -110,3 +110,6 @@ src/luac
 
 build
 include
+
+lua
+luac
