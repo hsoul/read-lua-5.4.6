@@ -104,7 +104,7 @@
 #define AGEBITS 7 /* all age bits (111) */
 
 #define getage(o) ((o)->marked & AGEBITS)
-#define setage(o, a) ((o)->marked = cast_byte(((o)->marked & (~AGEBITS)) | a))
+#define setage(o, a) ((o)->marked = cast_byte(((o)->marked & (~AGEBITS)) | a)) // 清空所有标记位重新设置
 #define isold(o) (getage(o) > G_SURVIVAL)
 
 #define changeage(o, f, t) \

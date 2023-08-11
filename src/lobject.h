@@ -520,7 +520,7 @@ typedef struct Udata0
 typedef struct Upvaldesc
 {
   TString *name;   /* upvalue name (for debug information) */
-  lu_byte instack; /* whether it is in stack (register) */
+  lu_byte instack; // 表示这个 upv 是否在函数的调用堆栈(链)上(不是lua_state中的栈空间) /* whether it is in stack (register) */
   lu_byte idx;     /* index of upvalue (in stack or in outer function's list) */
   lu_byte kind;    /* kind of corresponding variable */
 } Upvaldesc;
@@ -562,7 +562,7 @@ typedef struct Proto
   lu_byte is_vararg;    // 标记lua函数参数列表是否为变长参数，0表示不是，1表示是
   lu_byte maxstacksize; /* number of registers needed by this function */
   int sizeupvalues;     /* size of 'upvalues' */
-  int sizek;            /* size of 'k' */
+  int sizek;            // constants list size ? /* size of 'k' */
   int sizecode;         // code 指令列表的长度
   int sizelineinfo;
   int sizep; /* size of 'p' */
@@ -665,14 +665,14 @@ typedef struct UpVal
   lu_byte nupvalues;  \
   GCObject *gclist
 
-typedef struct CClosure
+typedef struct CClosure // C closure
 {
   ClosureHeader;
   lua_CFunction f;
   TValue upvalue[1]; /* list of upvalues */
 } CClosure;
 
-typedef struct LClosure
+typedef struct LClosure // lua closure
 {
   ClosureHeader;
   struct Proto *p;

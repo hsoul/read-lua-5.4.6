@@ -815,9 +815,8 @@ static int block_follow(LexState *ls, int withuntil)
   }
 }
 
-static void statlist(LexState *ls)
+static void statlist(LexState *ls) /* statlist -> { stat [';'] } */
 {
-  /* statlist -> { stat [';'] } */
   while (!block_follow(ls, 1))
   {
     if (ls->t.token == TK_RETURN)

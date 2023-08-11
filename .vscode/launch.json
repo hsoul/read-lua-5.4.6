@@ -34,7 +34,7 @@
       "name": "ltest",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceFolder}/src/lua",
+      "program": "${workspaceFolder}/build/lua",
       "args": [
           "test.lua",
       ],

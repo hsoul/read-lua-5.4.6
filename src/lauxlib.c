@@ -796,8 +796,8 @@ static int skipBOM(FILE *f)
 static int skipcomment(FILE *f, int *cp)
 {
   int c = *cp = skipBOM(f);
-  if (c == '#')
-  { /* first line is a comment (Unix exec. file)? */
+  if (c == '#') /* first line is a comment (Unix exec. file)? */
+  {
     do
     { /* skip first line */
       c = getc(f);
@@ -830,8 +830,8 @@ LUALIB_API int luaL_loadfilex(lua_State *L, const char *filename, const char *mo
   lf.n = 0;
   if (skipcomment(lf.f, &c)) /* read initial portion */
     lf.buff[lf.n++] = '\n';  /* add newline to correct line numbers */
-  if (c == LUA_SIGNATURE[0])
-  {           /* binary file? */
+  if (c == LUA_SIGNATURE[0]) /* binary file? */
+  {
     lf.n = 0; /* remove possible newline */
     if (filename)
     {                                       /* "real" file? */
@@ -1020,8 +1020,8 @@ LUALIB_API int luaL_getsubtable(lua_State *L, int idx, const char *fname)
 LUALIB_API void luaL_requiref(lua_State *L, const char *modname, lua_CFunction openf, int glb)
 {
   luaL_getsubtable(L, LUA_REGISTRYINDEX, LUA_LOADED_TABLE); // if not found, create it
-  lua_getfield(L, -1, modname); /* LOADED[modname] */
-  if (!lua_toboolean(L, -1))    /* package not already loaded? */
+  lua_getfield(L, -1, modname);                             /* LOADED[modname] */
+  if (!lua_toboolean(L, -1))                                /* package not already loaded? */
   {
     lua_pop(L, 1); /* remove field */
     lua_pushcfunction(L, openf);

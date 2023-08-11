@@ -23,4 +23,5 @@
     "editor.inlayHints.enabled": "off", // 是否提示函数参数名字
     "editor.indentSize": "tabSize",
     "editor.tabSize": 2,
+    "cmake.configureOnOpen": false,
 }

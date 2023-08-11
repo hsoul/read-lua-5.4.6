@@ -453,8 +453,8 @@ static void restartcollection(global_State *g)
 static void genlink(global_State *g, GCObject *o)
 {
   lua_assert(isblack(o));
-  if (getage(o) == G_TOUCHED1)
-  {                                 /* touched in this cycle? */
+  if (getage(o) == G_TOUCHED1) /* touched in this cycle? */
+  {
     linkobjgclist(o, g->grayagain); /* link it back in 'grayagain' */
   }                                 /* everything else do not need to be linked back */
   else if (getage(o) == G_TOUCHED2)
@@ -761,9 +761,8 @@ static void convergeephemerons(global_State *g)
         changed = 1;     /* will have to revisit all ephemeron tables */
       }
     }
-    dir = !dir; /* invert direction next time */
-  }
-  while (changed); /* repeat until no more changes */
+    dir = !dir;      /* invert direction next time */
+  } while (changed); /* repeat until no more changes */
 }
 
 /* }====================================================== */
@@ -918,8 +917,7 @@ static GCObject **sweeptolive(lua_State *L, GCObject **p)
   do
   {
     p = sweeplist(L, p, 1, NULL);
-  }
-  while (p == old);
+  } while (p == old);
   return p;
 }
 
@@ -1138,8 +1136,8 @@ static void setpause(global_State *g)
   l_mem estimate = g->GCestimate / PAUSEADJ; /* adjust 'estimate' */
   lua_assert(estimate > 0);
   threshold = (pause < MAX_LMEM / estimate) /* overflow? */
-                  ? estimate * pause        /* no overflow */
-                  : MAX_LMEM;               /* overflow; truncate to maximum */
+                ? estimate * pause          /* no overflow */
+                : MAX_LMEM;                 /* overflow; truncate to maximum */
   debt = gettotalbytes(g) - threshold;
   if (debt > 0)
     debt = 0;
@@ -1782,14 +1780,13 @@ static void incstep(lua_State *L, global_State *g)
   int stepmul = (getgcparam(g->gcstepmul) | 1); /* avoid division by 0 */
   l_mem debt = (g->GCdebt / WORK2MEM) * stepmul;
   l_mem stepsize = (g->gcstepsize <= log2maxs(l_mem))
-                       ? ((cast(l_mem, 1) << g->gcstepsize) / WORK2MEM) * stepmul
-                       : MAX_LMEM; /* overflow; keep maximum value */
+                     ? ((cast(l_mem, 1) << g->gcstepsize) / WORK2MEM) * stepmul
+                     : MAX_LMEM; /* overflow; keep maximum value */
   do
   {                              /* repeat until pause or enough "credit" (negative debt) */
     lu_mem work = singlestep(L); /* perform one single step */
     debt -= work;
-  }
-  while (debt > -stepsize && g->gcstate != GCSpause);
+  } while (debt > -stepsize && g->gcstate != GCSpause);
   if (g->gcstate == GCSpause)
     setpause(g); /* pause until next cycle */
   else

@@ -180,6 +180,10 @@ if(LUA_BUILD_BINARY)
   set_target_properties(lua PROPERTIES 
     RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}
   )
+  target_link_options(lua
+    PUBLIC
+      "-Wl,-E"
+  )
   if (HAVE_READLINE_READLINE_H)
     target_compile_definitions(lua PRIVATE "LUA_USE_READLINE")
     target_link_libraries(lua PUBLIC readline)

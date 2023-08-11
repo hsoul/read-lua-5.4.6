@@ -2,8 +2,40 @@
 -- desc:A tool to show lua bytecode proto
 -- date:2018-08-25
 
+package.path = package.path .. ";/export/hdq/workspace/lua/lua-5.4.6/tools/protodump/?.lua"
+
+require("ptable")
+
+function pairs_by_keys(t, f)
+    local a = {}
+    for n in pairs(t) do table.insert(a, n) end
+    table.sort(a, f)
+    local i = 0                 -- iterator variable
+    local iter = function ()    -- iterator function
+       i = i + 1
+       if a[i] == nil then return nil
+       else return a[i], t[a[i]]
+       end
+    end
+    return iter
+end
+
+function sort_func(a , b)
+    if a == "p" or a == "proto" then 
+        return false
+    end
+    if b == "p" or b == "proto" then 
+        return true
+    end
+    if type(a) == "number" and type(b) == "number" then
+        return a < b
+    else
+        return tostring(a) < tostring(b)
+    end
+end
+
 local file_name, output_file_name = ...
-print(string.format("file_name = %s", file_name))
+print(string.format("file_name = \"%s\"", file_name))
 
 local define = {}
 define.size = {
@@ -569,7 +601,9 @@ local function load_protos(code_str)
     for i = 1, nproto do 
         protos[i] = load_function(code_str)
     end 
-    
+    if not next(protos) then
+        return nil
+    end
     return protos    
 end 
 
@@ -619,11 +653,16 @@ function load_function(code_str)
     proto.p = load_protos(code_str)
     
     local dbg = load_debug(code_str)
-    proto.lineinfo = dbg.lineinfo 
+    -- proto.lineinfo = dbg.lineinfo 
     proto.locvars = dbg.locvars 
-    for idx, v in pairs(dbg.upvalues) do 
+    for idx, v in ipairs(dbg.upvalues) do 
         proto.upvalues[idx].name = v 
-    end 
+    end
+    
+    -- 为了便于查看，删除一些不必要的字段，如果需要查看编译后详细信息可以将下面代码注释掉
+    proto.lastlinedefine = nil
+    proto.code = nil
+    proto.linedefine = nil
 
     return proto    
 end 
@@ -665,7 +704,7 @@ local function dump(root)
     local cache = { [root] = "." }
     local function _dump(t,space,name)
         local temp = {}
-        for k,v in pairs(t) do
+        for k,v in pairs_by_keys(t, sort_func) do
             local key = tostring(k)
             if cache[v] then
                 table.insert(temp,"+" .. key .. " {" .. cache[v].."}")
@@ -704,13 +743,13 @@ end
 -- entry
 local function main()
     local code_str = get_pure_code()
-    print(code_str, "111111111")
     
-    check_header(code_str)
+    check_header(code_str) 
     local lclosure = new_lclosure(hex2decimal(str2hex(load_byte(code_str))))
     lclosure.proto = load_function(code_str)
 
-    dump(lclosure)
-end 
+    ptable(lclosure, "closure", sort_func, 4)
+    -- dump(lclosure)
+end
 
 main()
