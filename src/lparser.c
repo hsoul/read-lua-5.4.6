@@ -396,8 +396,8 @@ static int searchvar(FuncState *fs, TString *n, expdesc *var)
   for (i = cast_int(fs->nactvar) - 1; i >= 0; i--)
   {
     Vardesc *vd = getlocalvardesc(fs, i);
-    if (eqstr(n, vd->vd.name))
-    {                            /* found? */
+    if (eqstr(n, vd->vd.name)) /* found? */
+    {
       if (vd->vd.kind == RDKCTC) /* compile-time constant? */
         init_exp(var, VCONST, fs->firstlocal + i);
       else /* real variable */
@@ -444,13 +444,13 @@ static void singlevaraux(FuncState *fs, TString *n, expdesc *var, int base)
   else
   {
     int v = searchvar(fs, n, var); /* look up locals at current level */
-    if (v >= 0)
-    { /* found? */
+    if (v >= 0)                    /* found? */
+    {
       if (v == VLOCAL && !base)
         markupval(fs, var->u.var.vidx); /* local will be used as an upval */
     }
-    else
-    {                                 /* not found as local at current level; try upvalues */
+    else /* not found as local at current level; try upvalues */
+    {
       int idx = searchupvalue(fs, n); /* try existing upvalues */
       if (idx < 0)
       {                                           /* not found? */
@@ -474,8 +474,8 @@ static void singlevar(LexState *ls, expdesc *var)
   TString *varname = str_checkname(ls);
   FuncState *fs = ls->fs;
   singlevaraux(fs, varname, var, 1);
-  if (var->k == VVOID)
-  { /* global name? */
+  if (var->k == VVOID) /* global name? */
+  {
     expdesc key;
     singlevaraux(fs, ls->envn, var, 1); /* get environment variable */
     lua_assert(var->k != VVOID);        /* this one must exist */
@@ -815,7 +815,7 @@ static int block_follow(LexState *ls, int withuntil)
   }
 }
 
-static void statlist(LexState *ls) /* statlist -> { stat [';'] } */
+static void statlist(LexState *ls) /* statlist -> { stat [';'] } */ // statlist = block
 {
   while (!block_follow(ls, 1))
   {
@@ -1101,8 +1101,7 @@ static void funcargs(LexState *ls, expdesc *f, int line)
   }
   init_exp(f, VCALL, luaK_codeABC(fs, OP_CALL, base, nparams + 1, 2));
   luaK_fixline(fs, line);
-  fs->freereg = base + 1; /* call remove function and arguments and leaves
-                             (unless changed) one result */
+  fs->freereg = base + 1; /* call remove function and arguments and leaves (unless changed) one result */
 }
 
 /*
@@ -1136,11 +1135,10 @@ static void primaryexp(LexState *ls, expdesc *v)
 
 static void suffixedexp(LexState *ls, expdesc *v)
 {
-  /* suffixedexp ->
-       primaryexp { '.' NAME | '[' exp ']' | ':' NAME funcargs | funcargs } */
+  /* suffixedexp -> primaryexp { '.' NAME | '[' exp ']' | ':' NAME funcargs | funcargs } */
   FuncState *fs = ls->fs;
   int line = ls->linenumber;
-  primaryexp(ls, v);
+  primaryexp(ls, v); // 初级表达式，指一个程序中最基本、最简单的表达式
   for (;;)
   {
     switch (ls->t.token)
@@ -1166,7 +1164,7 @@ static void suffixedexp(LexState *ls, expdesc *v)
       }
       case '(':
       case TK_STRING:
-      case '{': { /* funcargs */
+      case '{': { /* funcargs */ // 3种调用函数的方式，例：print(1,2,3)  print {1,2,3}  print "123"
         luaK_exp2nextreg(fs, v);
         funcargs(ls, v, line);
         break;
@@ -1344,8 +1342,8 @@ static BinOpr subexpr(LexState *ls, expdesc *v, int limit)
   UnOpr uop;
   enterlevel(ls);
   uop = getunopr(ls->t.token);
-  if (uop != OPR_NOUNOPR)
-  { /* prefix (unary) operator? */
+  if (uop != OPR_NOUNOPR) /* prefix (unary) operator? */
+  {
     int line = ls->linenumber;
     luaX_next(ls); /* skip operator */
     subexpr(ls, v, UNARY_PRIORITY);
@@ -1468,8 +1466,8 @@ static void restassign(LexState *ls, struct LHS_assign *lh, int nvars)
   expdesc e;
   check_condition(ls, vkisvar(lh->v.k), "syntax error");
   check_readonly(ls, &lh->v);
-  if (testnext(ls, ','))
-  { /* restassign -> ',' suffixedexp restassign */
+  if (testnext(ls, ',')) /* restassign -> ',' suffixedexp restassign */
+  {
     struct LHS_assign nv;
     nv.prev = lh;
     suffixedexp(ls, &nv.v);
@@ -1479,8 +1477,8 @@ static void restassign(LexState *ls, struct LHS_assign *lh, int nvars)
     restassign(ls, &nv, nvars + 1);
     leavelevel(ls);
   }
-  else
-  { /* restassign -> '=' explist */
+  else /* restassign -> '=' explist */
+  {
     int nexps;
     checknext(ls, '=');
     nexps = explist(ls, &e);
@@ -1655,8 +1653,8 @@ static void forbody(LexState *ls, int base, int line, int nvars, int isgen)
   block(ls);
   leaveblock(fs); /* end of scope for declared variables */
   fixforjump(fs, prep, luaK_getlabel(fs), 0);
-  if (isgen)
-  { /* generic for? */
+  if (isgen) /* generic for? */
+  {
     luaK_codeABC(fs, OP_TFORCALL, base, 0, nvars);
     luaK_fixline(fs, line);
   }
@@ -1919,13 +1917,13 @@ static void exprstat(LexState *ls)
   FuncState *fs = ls->fs;
   struct LHS_assign v;
   suffixedexp(ls, &v.v);
-  if (ls->t.token == '=' || ls->t.token == ',')
-  { /* stat -> assignment ? */
+  if (ls->t.token == '=' || ls->t.token == ',') /* stat -> assignment ? */
+  {
     v.prev = NULL;
     restassign(ls, &v, 1);
   }
-  else
-  { /* stat -> func */
+  else /* stat -> func */
+  {
     Instruction *inst;
     check_condition(ls, v.v.k == VCALL, "syntax error");
     inst = &getinstruction(fs, &v.v);
@@ -1948,8 +1946,8 @@ static void retstat(LexState *ls)
     if (hasmultret(e.k))
     {
       luaK_setmultret(fs, &e);
-      if (e.k == VCALL && nret == 1 && !fs->bl->insidetbc)
-      { /* tail call? */
+      if (e.k == VCALL && nret == 1 && !fs->bl->insidetbc) /* tail call? */
+      {
         SET_OPCODE(getinstruction(fs, &e), OP_TAILCALL);
         lua_assert(GETARG_A(getinstruction(fs, &e)) == luaY_nvarstack(fs));
       }
@@ -1959,8 +1957,8 @@ static void retstat(LexState *ls)
     {
       if (nret == 1)                     /* only one single value? */
         first = luaK_exp2anyreg(fs, &e); /* can use original slot */
-      else
-      { /* values must go to the top of the stack */
+      else /* values must go to the top of the stack */
+      {
         luaK_exp2nextreg(fs, &e);
         lua_assert(nret == fs->freereg - first);
       }
@@ -2038,8 +2036,7 @@ static void statement(LexState *ls)
       break;
     }
   }
-  lua_assert(ls->fs->f->maxstacksize >= ls->fs->freereg &&
-             ls->fs->freereg >= luaY_nvarstack(ls->fs));
+  lua_assert(ls->fs->f->maxstacksize >= ls->fs->freereg && ls->fs->freereg >= luaY_nvarstack(ls->fs));
   ls->fs->freereg = luaY_nvarstack(ls->fs); /* free registers */
   leavelevel(ls);
 }

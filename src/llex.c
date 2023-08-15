@@ -103,8 +103,8 @@ void luaX_init(lua_State *L)
 
 const char *luaX_token2str(LexState *ls, int token)
 {
-  if (token < FIRST_RESERVED)
-  { /* single-byte symbols? */
+  if (token < FIRST_RESERVED) /* single-byte symbols? */
+  {
     if (lisprint(token))
       return luaO_pushfstring(ls->L, "'%c'", token);
     else /* control character */
@@ -185,9 +185,9 @@ static void inclinenumber(LexState *ls)
 {
   int old = ls->current;
   lua_assert(currIsNewline(ls));
-  next(ls); /* skip '\n' or '\r' */
-  if (currIsNewline(ls) && ls->current != old)
-    next(ls); /* skip '\n\r' or '\r\n' */
+  next(ls);                                    /* skip '\n' or '\r' */
+  if (currIsNewline(ls) && ls->current != old) /* skip '\n\r' or '\r\n' */
+    next(ls);
   if (++ls->linenumber >= MAX_INT)
     lexerror(ls, "chunk has too many lines", 0);
 }
@@ -515,8 +515,8 @@ static void read_string(LexState *ls, int del, SemInfo *seminfo)
         save_and_next(ls);
     }
   }
-  save_and_next(ls); /* skip delimiter */
-  seminfo->ts = luaX_newstring(ls, luaZ_buffer(ls->buff) + 1, luaZ_bufflen(ls->buff) - 2);
+  save_and_next(ls);                                                                       /* skip delimiter */
+  seminfo->ts = luaX_newstring(ls, luaZ_buffer(ls->buff) + 1, luaZ_bufflen(ls->buff) - 2); // 起始位置从 " 、' 之后开始，长度减2是因为去掉了两个 " 或 '
 }
 
 static int llex(LexState *ls, SemInfo *seminfo)
@@ -544,8 +544,8 @@ static int llex(LexState *ls, SemInfo *seminfo)
           return '-';
         /* else is a comment */
         next(ls);
-        if (ls->current == '[')
-        { /* long comment? */
+        if (ls->current == '[') /* long comment? */
+        {
           size_t sep = skip_sep(ls);
           luaZ_resetbuffer(ls->buff); /* 'skip_sep' may dirty the buffer */
           if (sep >= 2)
@@ -556,8 +556,8 @@ static int llex(LexState *ls, SemInfo *seminfo)
           }
         }
         /* else short comment */
-        while (!currIsNewline(ls) && ls->current != EOZ)
-          next(ls); /* skip until end of line (or end of file) */
+        while (!currIsNewline(ls) && ls->current != EOZ) /* skip until end of line (or end of file) */
+          next(ls);
         break;
       }
       case '[': { /* long string or simply '[' */
@@ -652,8 +652,8 @@ static int llex(LexState *ls, SemInfo *seminfo)
         return TK_EOS;
       }
       default: {
-        if (lislalpha(ls->current))
-        { /* identifier or reserved word? */
+        if (lislalpha(ls->current)) /* identifier or reserved word? */
+        {
           TString *ts;
           do
           {
@@ -668,8 +668,8 @@ static int llex(LexState *ls, SemInfo *seminfo)
             return TK_NAME;
           }
         }
-        else
-        { /* single-char tokens ('+', '*', '%', '{', '}', ...) */
+        else /* single-char tokens ('(', ')', '+', '*', '%', '{', '}', ...) */
+        {
           int c = ls->current;
           next(ls);
           return c;

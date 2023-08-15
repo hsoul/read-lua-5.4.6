@@ -536,8 +536,8 @@ static const char *l_str2dloc(const char *s, lua_Number *result, int mode)
   char *endptr;
   *result = (mode == 'x') ? lua_strx2number(s, &endptr) /* try to convert */
                           : lua_str2number(s, &endptr);
-  if (endptr == s)
-    return NULL;                                  /* nothing recognized? */
+  if (endptr == s) /* nothing recognized? */
+    return NULL;
   while (lisspace(cast_uchar(*endptr))) endptr++; /* skip trailing spaces */
   return (*endptr == '\0') ? endptr : NULL;       /* OK iff no trailing chars */
 }
@@ -558,15 +558,15 @@ static const char *l_str2dloc(const char *s, lua_Number *result, int mode)
 static const char *l_str2d(const char *s, lua_Number *result)
 {
   const char *endptr;
-  const char *pmode = strpbrk(s, ".xXnN"); /* look for special chars */
+  const char *pmode = strpbrk(s, ".xXnN"); /* look for special chars */ // strpbrk 函数可以用来在一个字符串中搜索另一个字符串中任意字符的出现位置
   int mode = pmode ? ltolower(cast_uchar(*pmode)) : 0;
   if (mode == 'n') /* reject 'inf' and 'nan' */
     return NULL;
   endptr = l_str2dloc(s, result, mode); /* try to convert */
-  if (endptr == NULL)
-  { /* failed? may be a different locale */
+  if (endptr == NULL)                   /* failed? may be a different locale */
+  {
     char buff[L_MAXLENNUM + 1];
-    const char *pdot = strchr(s, '.');
+    const char *pdot = strchr(s, '.'); // strchr 函数用于在字符串中查找一个指定的字符。
     if (pdot == NULL || strlen(s) > L_MAXLENNUM)
       return NULL;                            /* string too long or no dot; fail */
     strcpy(buff, s);                          /* copy string to buffer */
@@ -589,8 +589,8 @@ static const char *l_str2int(const char *s, lua_Integer *result)
   while (lisspace(cast_uchar(*s))) s++; /* skip initial spaces */
   neg = isneg(&s);
   if (s[0] == '0' &&
-      (s[1] == 'x' || s[1] == 'X'))
-  {         /* hex? */
+      (s[1] == 'x' || s[1] == 'X')) /* hex? */
+  {
     s += 2; /* skip '0x' */
     for (; lisxdigit(cast_uchar(*s)); s++)
     {
@@ -598,9 +598,9 @@ static const char *l_str2int(const char *s, lua_Integer *result)
       empty = 0;
     }
   }
-  else
-  { /* decimal */
-    for (; lisdigit(cast_uchar(*s)); s++)
+  else /* decimal */
+  {
+    for (; lisdigit(cast_uchar(*s)); s++) // digit 数字
     {
       int d = *s - '0';
       if (a >= MAXBY10 && (a > MAXBY10 || d > MAXLASTD + neg)) /* overflow? */
@@ -624,12 +624,12 @@ size_t luaO_str2num(const char *s, TValue *o)
   lua_Integer i;
   lua_Number n;
   const char *e;
-  if ((e = l_str2int(s, &i)) != NULL)
-  { /* try as an integer */
+  if ((e = l_str2int(s, &i)) != NULL) /* try as an integer */
+  {
     setivalue(o, i);
   }
-  else if ((e = l_str2d(s, &n)) != NULL)
-  { /* else try as a float */
+  else if ((e = l_str2d(s, &n)) != NULL) /* else try as a float */
+  {
     setfltvalue(o, n);
   }
   else

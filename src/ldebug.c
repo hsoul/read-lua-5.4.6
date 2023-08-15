@@ -563,8 +563,8 @@ static const char *getobjname(const Proto *p, int lastpc, int reg, const char **
     return "local";
   /* else try symbolic execution */
   pc = findsetreg(p, lastpc, reg);
-  if (pc != -1)
-  { /* could find instruction? */
+  if (pc != -1) /* could find instruction? */
+  {
     Instruction i = p->code[pc];
     OpCode op = GET_OPCODE(i);
     switch (op)

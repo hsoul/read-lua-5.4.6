@@ -410,8 +410,10 @@ int luaK_code(FuncState *fs, Instruction i)
 int luaK_codeABCk(FuncState *fs, OpCode o, int a, int b, int c, int k)
 {
   lua_assert(getOpMode(o) == iABC);
-  lua_assert(a <= MAXARG_A && b <= MAXARG_B &&
-             c <= MAXARG_C && (k & ~1) == 0);
+  lua_assert(a <= MAXARG_A &&
+             b <= MAXARG_B &&
+             c <= MAXARG_C &&
+             (k & ~1) == 0);
   return luaK_code(fs, CREATE_ABCk(o, a, b, c, k));
 }
 
@@ -483,8 +485,7 @@ void luaK_checkstack(FuncState *fs, int n)
   if (newstack > fs->f->maxstacksize)
   {
     if (newstack >= MAXREGS)
-      luaX_syntaxerror(fs->ls,
-                       "function or expression needs too many registers");
+      luaX_syntaxerror(fs->ls, "function or expression needs too many registers");
     fs->f->maxstacksize = cast_byte(newstack);
   }
 }
@@ -576,8 +577,7 @@ static int addk(FuncState *fs, TValue *key, TValue *v)
   /* constant not found; create a new entry */
   oldsize = f->sizek;
   k = fs->nk;
-  /* numerical value does not need GC barrier;
-     table has no metatable, so it does not need to invalidate cache */
+  /* numerical value does not need GC barrier; table has no metatable, so it does not need to invalidate cache */
   setivalue(&val, k);
   luaH_finishset(L, fs->ls->h, key, idx, &val);
   luaM_growvector(L, f->k, k, f->sizek, TValue, MAXARG_Ax, "constants");
@@ -1984,8 +1984,8 @@ void luaK_finish(FuncState *fs)
     {
       case OP_RETURN0:
       case OP_RETURN1: {
-        if (!(fs->needclose || p->is_vararg))
-          break; /* no extra work */
+        if (!(fs->needclose || p->is_vararg)) /* no extra work */
+          break;
         /* else use OP_RETURN to do the extra work */
         SET_OPCODE(*pc, OP_RETURN);
       } /* FALLTHROUGH */

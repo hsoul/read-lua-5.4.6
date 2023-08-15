@@ -6,7 +6,7 @@ int main()
 {
   struct lua_State *L = luaL_newstate();
   luaL_openlibs(L);
-  int ok = luaL_loadfile(L, "/export/hdq/workspace/lua/lua-5.4.6/ltest/test.lua");
+  int ok = luaL_loadfile(L, "/export/hdq/workspace/lua/lua-5.4.6/ltest/pp.lua");
   if (ok == LUA_OK)
   {
     ok = lua_pcall(L, 0, 0, 0);

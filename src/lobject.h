@@ -30,7 +30,13 @@
 ** bits 4-5: variant bits
 ** bit 6: whether value is collectable
 */
-
+/*
+从右向左看
+前4位是类型，最多可支持16种类型
+第5～6，这2位是变体，最多可支持4种变体
+第7位标记是否可回收
+第8位未用到
+*/
 /* add variant bits to a type */
 #define makevariant(t, v) ((t) | ((v) << 4))
 
