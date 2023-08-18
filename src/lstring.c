@@ -48,8 +48,8 @@ unsigned int luaS_hash(const char *str, size_t l, unsigned int seed)
 unsigned int luaS_hashlongstr(TString *ts)
 {
   lua_assert(ts->tt == LUA_VLNGSTR);
-  if (ts->extra == 0)
-  { /* no hash? */
+  if (ts->extra == 0) /* no hash? */
+  {
     size_t len = ts->u.lnglen;
     ts->hash = luaS_hash(getstr(ts), len, ts->hash);
     ts->extra = 1; /* now it has its hash */

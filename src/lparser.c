@@ -59,8 +59,7 @@ static void expr(LexState *ls, expdesc *v);
 
 static l_noret error_expected(LexState *ls, int token)
 {
-  luaX_syntaxerror(ls,
-                   luaO_pushfstring(ls->L, "%s expected", luaX_token2str(ls, token)));
+  luaX_syntaxerror(ls, luaO_pushfstring(ls->L, "%s expected", luaX_token2str(ls, token)));
 }
 
 static l_noret errorlimit(FuncState *fs, int limit, const char *what)
@@ -1177,8 +1176,18 @@ static void suffixedexp(LexState *ls, expdesc *v)
 
 static void simpleexp(LexState *ls, expdesc *v)
 {
-  /* simpleexp -> FLT | INT | STRING | NIL | TRUE | FALSE | ... |
-                  constructor | FUNCTION body | suffixedexp */
+  /* simpleexp ->
+    FLT           |
+    INT           |
+    STRING        |
+    NIL           |
+    TRUE          |
+    FALSE         |
+    ...           |
+    constructor   |
+    FUNCTION body |
+    suffixedexp
+  */
   switch (ls->t.token)
   {
     case TK_FLT: {
@@ -1309,23 +1318,32 @@ static const struct
   /* ORDER OPR */
   {10, 10},
   {10, 10}, /* '+' '-' */
+
   {11, 11},
   {11, 11}, /* '*' '%' */
-  {14, 13}, /* '^' (right associative) */
+
+  {14, 13}, /* '^' (right associative) */ // 运算符两侧操作数优先向右结合，故left大于right 
+
   {11, 11},
   {11, 11}, /* '/' '//' */
+
   {6, 6},
   {4, 4},
   {5, 5}, /* '&' '|' '~' */
+
   {7, 7},
   {7, 7}, /* '<<' '>>' */
+
   {9, 8}, /* '..' (right associative) */
+
   {3, 3},
   {3, 3},
   {3, 3}, /* ==, <, <= */
+
   {3, 3},
   {3, 3},
   {3, 3}, /* ~=, >, >= */
+
   {2, 2},
   {1, 1} /* and, or */
 };
@@ -1342,7 +1360,7 @@ static BinOpr subexpr(LexState *ls, expdesc *v, int limit)
   UnOpr uop;
   enterlevel(ls);
   uop = getunopr(ls->t.token);
-  if (uop != OPR_NOUNOPR) /* prefix (unary) operator? */
+  if (uop != OPR_NOUNOPR) /* prefix (unary) operator? */ // 一元操作符
   {
     int line = ls->linenumber;
     luaX_next(ls); /* skip operator */
@@ -1352,7 +1370,7 @@ static BinOpr subexpr(LexState *ls, expdesc *v, int limit)
   else
     simpleexp(ls, v);
   /* expand while operators have priorities higher than 'limit' */
-  op = getbinopr(ls->t.token);
+  op = getbinopr(ls->t.token); // 二元操作符
   while (op != OPR_NOBINOPR && priority[op].left > limit)
   {
     expdesc v2;
@@ -1957,7 +1975,7 @@ static void retstat(LexState *ls)
     {
       if (nret == 1)                     /* only one single value? */
         first = luaK_exp2anyreg(fs, &e); /* can use original slot */
-      else /* values must go to the top of the stack */
+      else                               /* values must go to the top of the stack */
       {
         luaK_exp2nextreg(fs, &e);
         lua_assert(nret == fs->freereg - first);

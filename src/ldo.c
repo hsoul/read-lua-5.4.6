@@ -1010,8 +1010,8 @@ int luaD_pcall(lua_State *L, Pfunc func, void *u, ptrdiff_t old_top, ptrdiff_t e
 /*
 ** Execute a protected parser.
 */
-struct SParser
-{ /* data to 'f_parser' */
+struct SParser /* data to 'f_parser' */
+{
   ZIO *z;
   Mbuffer buff; /* dynamic structure used by the scanner */
   Dyndata dyd;  /* dynamic structures used by the parser */

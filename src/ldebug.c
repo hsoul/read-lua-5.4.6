@@ -980,16 +980,16 @@ int luaG_traceexec(lua_State *L, const Instruction *pc)
     /* 'L->oldpc' may be invalid; use zero in this case */
     int oldpc = (L->oldpc < p->sizecode) ? L->oldpc : 0;
     int npci = pcRel(pc, p);
-    if (npci <= oldpc || /* call hook when jump back (loop), */
-        changedline(p, oldpc, npci))
-    { /* or when enter new line */
+    if (npci <= oldpc ||             /* call hook when jump back (loop), */
+        changedline(p, oldpc, npci)) /* or when enter new line */
+    {
       int newline = luaG_getfuncline(p, npci);
       luaD_hook(L, LUA_HOOKLINE, newline, 0, 0); /* call line hook */
     }
     L->oldpc = npci; /* 'pc' of last call to line hook */
   }
-  if (L->status == LUA_YIELD)
-  { /* did hook yield? */
+  if (L->status == LUA_YIELD) /* did hook yield? */
+  {
     if (counthook)
       L->hookcount = 1;               /* undo decrement to zero */
     ci->u.l.savedpc--;                /* undo increment (resume will increment it again) */

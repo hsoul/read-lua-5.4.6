@@ -357,9 +357,7 @@ static int runargs(lua_State *L, char **argv, int n)
         if (*extra == '\0')
           extra = argv[++i];
         lua_assert(extra != NULL);
-        status = (option == 'e')
-                   ? dostring(L, extra, "=(command line)")
-                   : dolibrary(L, extra);
+        status = (option == 'e') ? dostring(L, extra, "=(command line)") : dolibrary(L, extra);
         if (status != LUA_OK)
           return 0;
         break;

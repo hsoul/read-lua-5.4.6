@@ -799,7 +799,7 @@ void luaK_setoneret(FuncState *fs, expdesc *e)
 ** Ensure that expression 'e' is not a variable (nor a <const>).
 ** (Expression still may have jump lists.)
 */
-void luaK_dischargevars(FuncState *fs, expdesc *e)
+void luaK_dischargevars(FuncState *fs, expdesc *e) // TK：生成指令？
 {
   switch (e->k)
   {
@@ -1429,16 +1429,16 @@ static int validop(int op, TValue *v1, TValue *v2)
 static int constfolding(FuncState *fs, int op, expdesc *e1, const expdesc *e2)
 {
   TValue v1, v2, res;
-  if (!tonumeral(e1, &v1) || !tonumeral(e2, &v2) || !validop(op, &v1, &v2))
-    return 0;                                   /* non-numeric operands or not safe to fold */
+  if (!tonumeral(e1, &v1) || !tonumeral(e2, &v2) || !validop(op, &v1, &v2)) /* non-numeric operands or not safe to fold */
+    return 0;
   luaO_rawarith(fs->ls->L, op, &v1, &v2, &res); /* does operation */
   if (ttisinteger(&res))
   {
     e1->k = VKINT;
     e1->u.ival = ivalue(&res);
   }
-  else
-  { /* folds neither NaN nor 0.0 (to avoid problems with -0.0) */
+  else /* folds neither NaN nor 0.0 (to avoid problems with -0.0) */
+  {
     lua_Number n = fltvalue(&res);
     if (luai_numisnan(n) || n == 0)
       return 0;

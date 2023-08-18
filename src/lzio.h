@@ -15,7 +15,7 @@
 
 typedef struct Zio ZIO;
 
-#define zgetc(z) (((z)->n--) > 0 ? cast_uchar(*(z)->p++) : luaZ_fill(z))
+#define zgetc(z) (((z)->n--) > 0 ? cast_uchar(*(z)->p++) : luaZ_fill(z)) // 缓冲区中还有字符，直接返回，否则调用 luaZ_fill() 填充缓冲区并返回缓冲区的第一个字符
 
 typedef struct Mbuffer
 {

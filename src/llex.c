@@ -4,6 +4,7 @@
 ** See Copyright Notice in lua.h
 */
 
+#include <stdio.h>
 #define llex_c
 #define LUA_CORE
 
@@ -26,12 +27,12 @@
 #include "ltable.h"
 #include "lzio.h"
 
-#define next(ls) (ls->current = zgetc(ls->z))
+#define next(ls) (ls->current = zgetc(ls->z)) // 读取下一个字符, 如果缓冲区为空, 则调用 luaZ_fill 填充缓冲区，并返回缓冲区首字符
 
 #define currIsNewline(ls) (ls->current == '\n' || ls->current == '\r')
 
 /* ORDER RESERVED */
-static const char *const luaX_tokens[] = {
+static const char *const luaX_tokens[] = { // 多个字符的token会在初始化词法解析器的时候初始化为短字符串，在词法解析过程中对比字符串是否相等，来判断是否为关键字
   "and",
   "break",
   "do",
@@ -68,7 +69,8 @@ static const char *const luaX_tokens[] = {
   "<number>",
   "<integer>",
   "<name>",
-  "<string>"};
+  "<string>" //
+};
 
 #define save_and_next(ls) (save(ls, ls->current), next(ls))
 
@@ -519,7 +521,7 @@ static void read_string(LexState *ls, int del, SemInfo *seminfo)
   seminfo->ts = luaX_newstring(ls, luaZ_buffer(ls->buff) + 1, luaZ_bufflen(ls->buff) - 2); // 起始位置从 " 、' 之后开始，长度减2是因为去掉了两个 " 或 '
 }
 
-static int llex(LexState *ls, SemInfo *seminfo)
+static int llex(LexState *ls, SemInfo *seminfo) // 词法分析, 每次都会读取一个完整的token
 {
   luaZ_resetbuffer(ls->buff);
   for (;;)
@@ -689,6 +691,21 @@ void luaX_next(LexState *ls)
   }
   else
     ls->t.token = llex(ls, &ls->t.seminfo); /* read next token */
+
+  if (ls->t.token < FIRST_RESERVED)
+    printf("T:	%c\n", ls->t.token);
+  else
+  {
+    if (ls->t.token == TK_NAME || ls->t.token == TK_STRING)
+      printf("T:	%s		%s\n", getstr(ls->t.seminfo.ts), luaX_token2str(ls, ls->t.token));
+    else if (ls->t.token == TK_FLT)
+     printf("T:	%lf		%s\n", ls->t.seminfo.r, luaX_token2str(ls, ls->t.token));
+    else if (ls->t.token == TK_INT)
+     printf("T:	%lld		%s\n", ls->t.seminfo.i, luaX_token2str(ls, ls->t.token));
+    else
+     printf("T:	%s\n", luaX_token2str(ls, ls->t.token));
+  }
+    
 }
 
 int luaX_lookahead(LexState *ls)

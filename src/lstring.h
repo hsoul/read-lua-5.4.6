@@ -28,7 +28,7 @@
 /*
 ** test whether a string is a reserved word
 */
-#define isreserved(s) ((s)->tt == LUA_VSHRSTR && (s)->extra > 0)
+#define isreserved(s) ((s)->tt == LUA_VSHRSTR && (s)->extra > 0) // 判断短字符串是否是保留字，保留字都是短字符串，且 extra 大于 0
 
 /*
 ** equality for short strings, which are always internalized

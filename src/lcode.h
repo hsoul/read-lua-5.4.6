@@ -24,32 +24,32 @@
 typedef enum BinOpr
 {
   /* arithmetic operators */
-  OPR_ADD,
-  OPR_SUB,
-  OPR_MUL,
-  OPR_MOD,
-  OPR_POW,
-  OPR_DIV,
-  OPR_IDIV,
+  OPR_ADD,  /* Addition operator (+) */
+  OPR_SUB,  /* Subtraction operator (-) */
+  OPR_MUL,  /* Multiplication operator (*) */
+  OPR_MOD,  /* Modulo operator (%) */
+  OPR_POW,  /* Exponentiation operator (^) */
+  OPR_DIV,  /* Division operator (/) */
+  OPR_IDIV, /* Integer division operator (//) */
   /* bitwise operators */
-  OPR_BAND,
-  OPR_BOR,
-  OPR_BXOR,
-  OPR_SHL,
-  OPR_SHR,
+  OPR_BAND, /* Bitwise AND operator (&) */
+  OPR_BOR,  /* Bitwise OR operator (|) */
+  OPR_BXOR, /* Bitwise XOR operator (^) */
+  OPR_SHL,  /* Bitwise left shift operator (<<) */
+  OPR_SHR,  /* Bitwise right shift operator (>>) */
   /* string operator */
-  OPR_CONCAT,
+  OPR_CONCAT, /* String concatenation operator (..) */
   /* comparison operators */
-  OPR_EQ,
-  OPR_LT,
-  OPR_LE,
-  OPR_NE,
-  OPR_GT,
-  OPR_GE,
+  OPR_EQ, /* Equality operator (==) */
+  OPR_LT, /* Less than operator (<) */
+  OPR_LE, /* Less than or equal to operator (<=) */
+  OPR_NE, /* Not equal operator (~=) */
+  OPR_GT, /* Greater than operator (>) */
+  OPR_GE, /* Greater than or equal to operator (>=) */
   /* logical operators */
-  OPR_AND,
-  OPR_OR,
-  OPR_NOBINOPR
+  OPR_AND,     /* Logical AND operator (and) */
+  OPR_OR,      /* Logical OR operator (or) */
+  OPR_NOBINOPR /* No binary operator */
 } BinOpr;
 
 /* true if operation is foldable (that is, it is arithmetic or bitwise) */

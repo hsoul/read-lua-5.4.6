@@ -195,7 +195,7 @@ typedef enum
   OP_GETUPVAL,   /*	A B	R[A] := UpValue[B]				*/
   OP_SETUPVAL,   /*	A B	UpValue[B] := R[A]				*/
 
-  OP_GETTABUP, /*	A B C	R[A] := UpValue[B][K[C]:string]			*/
+  OP_GETTABUP, /*	A B C	R[A] := UpValue[B][K[C]:string]	*/
   OP_GETTABLE, /*	A B C	R[A] := R[B][R[C]]				*/
   OP_GETI,     /*	A B C	R[A] := R[B][C]					*/
   OP_GETFIELD, /*	A B C	R[A] := R[B][K[C]:string]			*/

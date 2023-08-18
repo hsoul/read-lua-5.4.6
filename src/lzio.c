@@ -26,7 +26,7 @@ int luaZ_fill(ZIO *z)
   lua_unlock(L);
   buff = z->reader(L, z->data, &size);
   lua_lock(L);
-  if (buff == NULL || size == 0)
+  if (buff == NULL || size == 0) // 文件读取完毕
     return EOZ;
   z->n = size - 1; /* discount char being returned */
   z->p = buff;
