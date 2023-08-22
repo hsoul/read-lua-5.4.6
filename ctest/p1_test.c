@@ -12,12 +12,12 @@ int main()
     ok = lua_pcall(L, 0, 0, 0);
     if (ok != LUA_OK)
     {
-      printf("pcall error:%s\n", lua_tostring(L, -1));
+      printf("## pcall error:%s\n", lua_tostring(L, -1));
     }
   }
   else 
   {
-    printf("load file error:%s\n", lua_tostring(L, -1));
+    printf("## load file error:%s\n", lua_tostring(L, -1));
   }
   lua_close(L);
 

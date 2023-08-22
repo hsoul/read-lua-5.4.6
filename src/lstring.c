@@ -62,8 +62,8 @@ static void tablerehash(TString **vect, int osize, int nsize)
   int i;
   for (i = osize; i < nsize; i++) /* clear new elements */
     vect[i] = NULL;
-  for (i = 0; i < osize; i++)
-  { /* rehash old part of the array */
+  for (i = 0; i < osize; i++) /* rehash old part of the array */
+  {
     TString *p = vect[i];
     vect[i] = NULL;
     while (p)

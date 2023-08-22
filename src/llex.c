@@ -697,13 +697,13 @@ void luaX_next(LexState *ls)
   else
   {
     if (ls->t.token == TK_NAME || ls->t.token == TK_STRING)
-      printf("T:	%s		%s\n", getstr(ls->t.seminfo.ts), luaX_token2str(ls, ls->t.token));
+      printf("T:	%s		%s\n", getstr(ls->t.seminfo.ts), luaX_tokens[ls->t.token - FIRST_RESERVED]);
     else if (ls->t.token == TK_FLT)
-     printf("T:	%lf		%s\n", ls->t.seminfo.r, luaX_token2str(ls, ls->t.token));
+     printf("T:	%lf		%s\n", ls->t.seminfo.r, luaX_tokens[ls->t.token - FIRST_RESERVED]);
     else if (ls->t.token == TK_INT)
-     printf("T:	%lld		%s\n", ls->t.seminfo.i, luaX_token2str(ls, ls->t.token));
+     printf("T:	%lld		%s\n", ls->t.seminfo.i, luaX_tokens[ls->t.token - FIRST_RESERVED]);
     else
-     printf("T:	%s\n", luaX_token2str(ls, ls->t.token));
+     printf("T:	%s\n", luaX_tokens[ls->t.token - FIRST_RESERVED]);
   }
     
 }

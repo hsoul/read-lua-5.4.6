@@ -6,23 +6,23 @@ stat ::=  ';' |
     varlist '=' explist | 
     functioncall | 
     label | 
-    break | 
-    goto Name | 
-    do block end | 
-    while exp do block end | 
-    repeat block until exp | 
-    if exp then block {elseif exp then block} [else block] end | 
-    for Name '=' exp ',' exp [',' exp] do block end | 
-    for namelist in explist do block end | 
-    function funcname funcbody | 
-    local function Name funcbody | 
-    local attnamelist ['=' explist] 
+    'break' | 
+    'goto' Name | 
+    'do' block 'end' | 
+    'while' exp 'do' block 'end' | 
+    'repeat' block 'until' exp | 
+    'if' exp 'then' block {'elseif' exp 'then' block} ['else' block] 'end' | 
+    'for' Name '=' exp ',' exp [',' exp] 'do' block 'end' | 
+    'for' namelist 'in' explist 'do' block 'end' | 
+    'function' funcname funcbody | 
+    'local' 'function' Name funcbody | 
+    'local' attnamelist ['=' explist] 
 
 attnamelist ::=  Name attrib {',' Name attrib}
 
 attrib ::= ['<' Name '>']
 
-retstat ::= return [explist] [';']
+retstat ::= 'return' [explist] [';']
 
 label ::= '::' Name '::'
 
@@ -36,9 +36,9 @@ namelist ::= Name {',' Name}
 
 explist ::= exp {',' exp}
 
-exp ::= nil | 
-        false | 
-        true | 
+exp ::= 'nil' | 
+        'false' | 
+        'true' | 
         Numeral | 
         LiteralString | 
         '...' | 
@@ -54,9 +54,9 @@ functioncall ::=  prefixexp args | prefixexp ':' Name args
 
 args ::=  '(' [explist] ')' | tableconstructor | LiteralString 
 
-functiondef ::= function funcbody
+functiondef ::= 'function' funcbody
 
-funcbody ::= '(' [parlist] ')' block end
+funcbody ::= '(' [parlist] ')' block 'end'
 
 parlist ::= namelist [',' '...'] | '...'
 
@@ -92,5 +92,5 @@ binop ::=   '+' |
 
 unop ::= '-' | not | '#' | '~'
 
-
+Name ::= [a-zA-Z]+
 

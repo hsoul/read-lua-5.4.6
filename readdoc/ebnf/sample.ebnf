@@ -1,27 +1,40 @@
-program ::= statement+
+program = { statement } ;
 
-statement ::= 'if' paren_expr statement
-   | 'if' paren_expr statement 'else' statement
-   | 'while' paren_expr statement
-   | 'do' statement 'while' paren_expr ';'
-   | '{' statement* '}'
-   | expr ';'
-   | ';'
+statement = "if", paren_expr, statement
+   | "if", paren_expr, statement, "else", statement
+   | "while", paren_expr, statement
+   | "do", statement, "while", paren_expr, ";"
+   | "{", {statement}, "}"
+   | expr, ";"
+   | ";" ;
 
-paren_expr ::= '(' expr ')'
+paren_expr = "(", expr, ")" ;
 
-expr ::= test | id '=' expr
+expr = test | id, "=", expr ;
 
-test ::= sum | sum '<' sum
+test = sum | sum, "<", sum ;
 
-sum ::= term | sum '+' term | sum '-' term
+sum = term | sum, "+", term | sum, "-", term ;
 
-term ::= id | integer | paren_expr
+term = id | number | paren_expr ;
 
-id ::= STRING
+id = string ;
 
-integer ::= INT
+string = '"', { ? Any unicode character except " or \ or control character ?
+  | "\", (
+  '"' (* quotation mark *) |
+  "\" (* reverse solidus *) |
+  "/" (* solidus *) |
+  "b" (* backspace *) |
+  "f" (* formfeed *) |
+  "n" (* newline *) |
+  "r" (* carriage return *) |
+  "t" (* horizontal tab *)
+  ) }, '"';
 
-STRING ::= [a-z]+
+number = [ "-" ],
+  ( "0" | digit without zero , { digit } );
 
-INT ::= [0-9]+
+digit = "0" | digit without zero;
+
+digit without zero = "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";

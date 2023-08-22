@@ -993,12 +993,12 @@ void luaK_exp2nextreg(FuncState *fs, expdesc *e)
 int luaK_exp2anyreg(FuncState *fs, expdesc *e)
 {
   luaK_dischargevars(fs, e);
-  if (e->k == VNONRELOC)
-  {                     /* expression already has a register? */
-    if (!hasjumps(e))   /* no jumps? */
-      return e->u.info; /* result is already in a register */
-    if (e->u.info >= luaY_nvarstack(fs))
-    {                            /* reg. is not a local? */
+  if (e->k == VNONRELOC) /* expression already has a register? */
+  {
+    if (!hasjumps(e))                    /* no jumps? */
+      return e->u.info;                  /* result is already in a register */
+    if (e->u.info >= luaY_nvarstack(fs)) /* reg. is not a local? */
+    {
       exp2reg(fs, e, e->u.info); /* put final result in it */
       return e->u.info;
     }
