@@ -125,3 +125,214 @@ chunk在编译后，本质上也是一个Lua函数对象。
 FuncState结构实例只在编译期存在。
 
 token就是文件中不能被分割的最小字符单元
+
+描述指令行为的函数和符号，分别是R函数、Kst函数、RK函数、PC变量和上值。
+    R函数代表获取Lua虚拟机上的寄存器，而Lua虚拟机的寄存器，是函数被调用时用虚拟栈上的空间来表示的。
+    Kst函数的作用则是表示获取Lua函数中的常量。在Lua中，常量指整型数值（如123）、浮点型数值（如123.456）、nil值、字符串（如"hello"）和布尔值（如true和false）。这些常量会按照出现的顺序被写入到函数的常量表中。
+        全局变量赋值语句中的左值和右值（当且仅当是常量时）均会存入常量表
+        局部变量的赋值语句中，局部变量名不会写入常量表k，但是赋值语句的右值是常量时会写入
+        局部变量赋值为布尔型常量时不会存入常量表k
+        如果调用的是全局函数，那么函数名和参数列表会写入常量表中
+        局部函数的调用，除了函数名没在常量表中，其他的情况和全局函数调用的类似
+    Kst函数的作用就是返回当前被调用函数中常量表的常量值. 常量表下标从1开始，因此当调用Kst（n）时（n为自然数），它实际上是取Proto.k[n-1]的值。
+    RK函数其本质是R函数和Kst函数的结合。RK函数的具体功能是由它的参数决定的，使用RK函数的方式如下所示。
+        RK(x) x为非负整数
+        当x的值小于256时，RK（x）实际上就是R（x）。当x的值大于等于256时，RK（x）实际就是Kst（x-256）。RK函数能够极大地方便描述虚拟机指令的逻辑。
+    有一些指令的描述里使用了PC这个变量，它所表示的是下一个要执行指令的地址。
+        虚拟机要执行的指令实际上是存储在Proto结构中的code列表里的，PC变量本质就是savedpc指针，PC变量自增实际上就是表示savedpc++操作。
+
+指令 = {
+    OP_MOVE = {
+        OP_MOVE A B; R(A) := R(B) -- 将寄存器R(B)上的值赋值到寄存器R(A)中
+        OP_MOVE指令是iABC模式，该指令会按照iABC模式进行解析。A和B的值均是非负整数值，该指令中C域未被使用
+        由于A域是8bit，因此A的取值范围在0～255。因为Lua函数被调用时，虚拟栈空间均可作为寄存器使用，因此虚拟栈空间的最大尺寸是256。而局部变量是通过虚拟机指令赋值到虚拟栈上的，因此单个函数定义的局部变量数目，理论上不能超过256个。
+    }
+    OP_LOADK = {
+        OP_LOADK A Bx; R(A) := Kst(Bx) -- 将常量表中第Bx个常量赋值到寄存器R(A)中
+        OP_LOADK是iABx模式。Bx是18bit的非负整数，因此Bx的范围是0～262143。Kst（Bx）取的是常量表的值，因此常量表最大尺寸实际是262144。
+    }
+    OP_LOADBOOL = {
+        OP_LOADBOOL A B C; R(A) := (Bool)B; if (C) PC++ -- 将B的值赋值到R(A)中，且如果C为真，则PC自增1
+        OP_LOADBOOL是iABC模式。编译器将布尔值直接编入指令中。B、C的值是0或者1. 如果C为真，则PC自增1，也就是跳过下一条指令，执行下下个指令。
+    }
+    OP_LOADNIL = {
+        OP_LOADNIL A B; R(A), R(A + 1), ... R(A + B) := nil -- 从寄存器R(A)开始到寄存器R(A + B)的值，全部赋值为nil
+        OP_LOADNIL是iABC模式。其中C域没有使用，A和B均是非负整数
+    }
+    OP_GETUPVAL = {
+        OP_GETUPVAL A B; R(A) := UpValue[B] -- 将当前调用的Lua函数的第B个upvalue的值赋值到寄存器R(A)中
+        OP_GETUPVAL是iABC模式。其中C域没有使用，A和B均是非负整数
+    }
+    OP_GETTABUP = {
+        OP_GETTABUP A B C; R(A) := UpValue[B][RK(C)] -- 将当前调用的Lua函数的第B个upvalue的值取出，它必定是一个表，并且使用RK(C)获取该表的键，最终将键对应的值赋值给寄存器R(A)
+        OP_GETTABUP指令是iABC模式。这个指令本质是先获得upvalue[B]的值，这个值必定是Lua表，否则虚拟机会抛出异常。然后通过RK（C）获取要访问表的键，最后再将最后的值赋值给寄存器R（A）。当C的值小于256时，RK（C）实际就是R（C），当C的值大于等于256时，RK（C）实际就是Kst（C-256）
+
+        fake_code = {
+            t = upvalue[B]
+            if not istable(t) then
+                throw error
+            end
+            key = RK(C)
+            R(A) = t[key]
+        }
+    }
+    OP_GETTABLE = {
+        OP_GETTABLE A B C; R(A) := R(B)[RK(C)] -- 将寄存器R(B)上的值取出，它必定是一个表，并且使用RK(C)获取该表的键，最终将键对应的值赋值给寄存器R(A)
+        OP_GETTABLE指令是iABC模式。其中R（B）寄存器内的值必定是一个Lua表，否则Lua虚拟机会抛出异常
+
+        fake_code = {
+            t = R(B)
+            if not istable(t) then
+                throw error
+            end
+            key = RK(C)
+            R(A) = t[key]
+        }
+    }
+    OP_SETTABUP = {
+        OP_SETTABUP A B C; UpValue[A][RK(B)] := RK(C) -- 获取第A个upvalue,它必定是一个Lua表，然后使用RK(B)获取该表中的键，并将RK(C)的值赋值赋值到该键对应的值里
+        OP_SETTABUP指令是iABC模式
+
+        fake_code = {
+            t = upvalue[A]
+            if not istable(t) then
+                throw error
+            end
+            t[RK(B)] = RK(C)
+        }
+    }
+    OP_SETUPVAL = {
+        OP_SETUPVAL A B; UpValue[B] := R(A) -- 将寄存器R(A)的值赋值给当前调用的Lua函数的第B个upvalue
+        OP_SETUPVAL指令是iABC模式, 其中C域没有使用
+    }
+    OP_SETTABLE = {
+        OP_SETTABLE A B C; R(A)[RK(B)] := RK(C) -- 寄存器R(A)上的值必定是一个Lua表。RK(B)是R(A)的key，RK(C)将作为该key对应的值
+        OP_SETTABLE指令是iABC模式
+
+        fake_code = {
+            t = R(A)
+            if not istable(t) then
+                throw error
+            end
+            t[RK(B)] = RK(C)
+        }
+    }
+    OP_NEWTABLE = {
+        OP_NEWTABLE A B C; R(A) := {} (size = B,C) -- 创建一个新表，array部分的大小为B，哈希部分的大小为C，并将该表赋值给寄存器R(A)
+        OP_NEWTABLE指令是iABC模式。其中B和C域均是非负整数，B域表示该表的数组部分的大小，C域表示该表的哈希部分的大小
+    }
+    OP_SELF = {
+        OP_SELF A B C; R(A + 1) := R(B); R(A) := R(B)[RK(C)] -- 将寄存器R(B)的值复制到寄存器R(A + 1)中，R(B)中的值必定是一个表，最后通过RK(C)获取该表的键，将lua表对应的值赋值给寄存器R(A)
+        OP_SELF指令是iABC模式。这个指令有些特别，它一般不能作为第一个指令存在，而是先要有包含目标函数的表存入栈中，才能继续操作。t表示OP_SELF指令的前一个指令压入栈中的Lua表。接着会将t[RK（C）]的值赋值到R（A）中，t[RK（C）]必定是个函数
+    }
+    OP_ADD = {
+        OP_ADD A B C; R(A) := RK(B) + RK(C) -- 将寄存器RK(B)和寄存器RK(C)上的值相加，然后将结果赋值给寄存器R(A). RK(B)和R(C)一般要求同时是数值类型
+        OP_ADD指令是iABC模式
+    }
+    OP_SUB = {
+        OP_SUB A B C; R(A) := RK(B) - RK(C) -- 将寄存器RK(B)和寄存器RK(C)上的值相减，然后将结果赋值给寄存器R(A). RK(B)和R(C)一般要求同时是数值类型
+        OP_SUB指令是iABC模式
+    }
+    OP_MUL = {
+        OP_MUL A B C; R(A) := RK(B) * RK(C) -- 将寄存器RK(B)和寄存器RK(C)上的值相乘，然后将结果赋值给寄存器R(A). RK(B)和R(C)一般要求同时是数值类型
+        OP_MUL指令是iABC模式
+    }
+    OP_MOD = {
+        OP_MOD A B C; R(A) := RK(B) % RK(C) -- 将寄存器RK(B)和寄存器RK(C)上的值取模，然后将结果赋值给寄存器R(A). RK(B)和R(C)一般要求同时是数值类型
+        OP_MOD指令是iABC模式
+    }
+    OP_POW = {
+        OP_POW A B C; R(A) := RK(B) ^ RK(C) -- 以RK(B)为底数RK(C)为指数进行指数运算，并将结果赋值到寄存器R(A)中. RK(B)和R(C)一般要求同时是数值类型
+        OP_POW指令是iABC模式
+    }
+    OP_DIV = {
+        OP_DIV A B C; R(A) := RK(B) / RK(C) -- 将寄存器RK(B)和寄存器RK(C)上的值相除，然后将结果赋值给寄存器R(A). R(C)的值不能为0
+        OP_DIV指令是iABC模式
+    }
+    OP_IDIV = {
+        OP_IDIV A B C; R(A) := RK(B) // RK(C) -- 尝试将寄存器RK(B)和寄存器RK(C)上的值同时转换成整数，然后进行整数除法，并将结果赋值给寄存器R(A).如果RK(B)和RK(C)不能同时转换成整型，那么它们会尝试被转换成浮点类型再进行计算。 R(C)的值不能为0
+        OP_IDIV指令是iABC模式
+    }
+    OP_BAND = {
+        OP_BAND A B C; R(A) := RK(B) & RK(C) -- 将寄存器RK(B)和寄存器RK(C)上的值进行按位与运算，并将结果赋值给寄存器R(A). RK(B)和R(C)一般要求同时是整数类型
+        OP_BAND指令是iABC模式
+    }
+    OP_BOR = {
+        OP_BOR A B C; R(A) := RK(B) | RK(C) -- 将寄存器RK(B)和寄存器RK(C)上的值进行按位或运算，并将结果赋值给寄存器R(A). RK(B)和R(C)一般要求同时是整数类型
+        OP_BOR指令是iABC模式
+    }
+    OP_BXOR = {
+        OP_BXOR A B C; R(A) := RK(B) ~ RK(C) -- 将寄存器RK(B)和寄存器RK(C)上的值进行按位异或运算，并将结果赋值给寄存器R(A). RK(B)和R(C)一般要求同时是整数类型
+        OP_BXOR指令是iABC模式
+    }
+    OP_SHL = {
+        OP_SHL A B C; R(A) := RK(B) << RK(C) -- 将寄存器RK(B)的值向左移RK(C)位，并将结果赋值给寄存器R(A). RK(B)和R(C)一般要求同时是整数类型
+        OP_SHL指令是iABC模式
+    }
+    OP_SHR = {
+        OP_SHR A B C; R(A) := RK(B) >> RK(C) -- 将寄存器RK(B)的值向右移RK(C)位，并将结果赋值给寄存器R(A). RK(B)和R(C)一般要求同时是整数类型
+        OP_SHR指令是iABC模式
+    }
+    OP_UNM = {
+        OP_UNM A B; R(A) := -R(B) -- 将寄存器R(B)上的值取负，并将结果赋值给寄存器R(A). R(B)一般要求是数值类型
+        OP_UNM指令是iABC模式
+    }
+    OP_NOT = {
+        OP_NOT A B; R(A) := not R(B) -- 将寄存器R(B)上的值取反，并将结果赋值给寄存器R(A). 
+        OP_NOT指令是iABC模式
+    }
+    OP_LEN = {
+        OP_LEN A B; R(A) := length of R(B) -- 将寄存器R(B)上的值的长度赋值给寄存器R(A). R(B)一般要求是字符串或者表类型
+        OP_LEN指令是iABC模式
+    }
+    OP_CONCAT = {
+        OP_CONCAT A B C; R(A) := R(B).. ... ..R(C) -- 将寄存器R(B)到寄存器R(C)上的值进行连接，并将结果赋值给寄存器R(A).
+        OP_CONCAT指令是iABC模式
+    }
+    OP_JMP = {
+        OP_JMP A sBx; PC += sBx; if (A) close all upvalues >= R(A - 1)  -- 将PC指针移动sBx个位置，sBx可以是正数也可以是负数，如果A的值为真，所有的upvalues设置为close状态
+        OP_JMP指令是iAsBx模式。sBx是一个有符号整数，它的取值范围是-131071～131071
+    }
+    OP_EQ = {
+        OP_EQ A B C; if ((RK(B) == RK(C)) ~= A) then PC++ -- 当A为0时，RK(B)和RK(C)的值相等，PC自增1。当A为1时，RK(B)和RK(C)不相等，PC自增1
+        OP_EQ指令是iABC模式
+    }
+    OP_LT = {
+        OP_LT A B C; if ((RK(B) <= RK(C)) ~= A) then PC++ -- 当A为0时，且RK(B) <= RK(C)，PC自增1。当A为1时，且RK(B) >= RK(C)，PC自增1
+        OP_LT指令是iABC模式
+    }
+    OP_TEST = {
+        OP_TEST A C; if not (R(A) == C) then PC++ -- 当R(A)的值等于C时，PC自增1
+        OP_TEST指令是iABC模式
+    }
+    OP_TESTSET = {
+        OP_TESTSET A B C; if (R(B) == C) then R(A) := R(B) else PC++ -- 当R(B)的值等于C时，将R(B)的值赋值给R(A)，否则PC自增1
+        OP_TESTSET指令是iABC模式
+    }
+    OP_CALL = {
+        OP_CALL A B C; R(A), ... ,R(A + C - 2) := R(A)(R(A + 1), ... ,R(A + B - 1)) -- 调用寄存器R(A)上的函数. B是被调用函数的参数个数。当B > 0 时，函数R(A)有B - 1个参数；当B == 0时，从R(A + 1)到栈顶均是函数R(A)的参数；C是函数预期返回的参数个数，当 C > 0 时，函数R(A)的返回值个数为C - 1；当C == 0时，从R(A)到栈顶均是R(A)的返回值。返回值会从R(A)的位置开始覆盖
+        OP_CALL指令是iABC模式
+    }
+    OP_RETURN = {
+        OP_RETURN A B; return R(A), ... ,R(A + B - 2) -- A表示第一个返回值位于Lua虚拟栈中的位置，当 B > 0 时，表示从R(A)开始，一共有B - 1个返回值；当 B == 0 时，表示从R(A)开始，一直到栈顶均是返回值
+        OP_RETURN指令是iABC模式
+    }
+    循环语句指令包括OP_FORLOOP、OP_FORPREP、OP_TFORCALL和OP_TFORLOOP，由于这几个指令比较复杂且需要组合使用
+    OP_SETLIST = {
+        OP_SETLIST A B C; R(A)[(C - 1) * FPF + i] := R(A + i), 1 <= i <= B
+
+        A 指向的位置是Lua表在虚拟栈中的位置
+        i 的取值范围是[1, B]
+        FPF(Field Per Flush)含义是每次处理的元素个数，Lua默认配置是50
+        B 表示一次设置到Lua表中的元素个数，从R(A + 1)开始到R(A + B)的元素，B的值一般不会超过FPF
+        C 用来定位表R(A)开始赋值的位置。R(A + 1)到R(A + B)的值，从表的 (C - 1) * FPF + 1 位置开始赋值
+        A、B 和 C的值均由编译器决定
+        当一个表初始化的元素超过FPF的数量时，编译器会生成多个SETLIST指令
+
+        OP_SETLIST指令是iABC模式
+    }
+    OP_CLOSURE = {
+        OP_CLOSURE A Bx; R(A) := closure(KPROTO[Bx]) -- 创建一个Lua闭包，并将该闭包赋值给寄存器R(A). 新建的Lua闭包关联Proto列表的第Bx个Proto结构
+        OP_CLOSURE指令是iABx模式
+    }
+}

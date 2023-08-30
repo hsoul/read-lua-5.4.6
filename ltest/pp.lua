@@ -1,6 +1,12 @@
-local a = 1
-b = 1 + a 
-print(b)
+ga = 1
+gb = nil
+gc = 12.4
+gd = true
+gf = "hello world"
+
+-- local a = 1
+-- b = 1 + a 
+-- print(b)
 -- local b = 2
 
 -- function foo()
