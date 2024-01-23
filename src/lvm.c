@@ -683,8 +683,7 @@ static void copy2buff(StkId top, int n, char *buff)
     size_t l = vslen(s2v(top - n)); /* length of string being copied */
     memcpy(buff + tl, svalue(s2v(top - n)), l * sizeof(char));
     tl += l;
-  }
-  while (--n > 0);
+  } while (--n > 0);
 }
 
 /*
@@ -739,8 +738,7 @@ void luaV_concat(lua_State *L, int total)
     }
     total -= n - 1;    /* got 'n' strings to create one new */
     L->top.p -= n - 1; /* popped 'n' strings and pushed one */
-  }
-  while (total > 1); /* repeat until only 1 result left */
+  } while (total > 1); /* repeat until only 1 result left */
 }
 
 /*
@@ -1287,8 +1285,8 @@ returning: /* trap already set */
   pc = ci->u.l.savedpc;
   if (l_unlikely(trap))
   {
-    if (pc == cl->p->code)
-    { /* first instruction (not resuming)? */
+    if (pc == cl->p->code) /* first instruction (not resuming)? */
+    {
       if (cl->p->is_vararg)
         trap = 0; /* hooks will start after VARARGPREP instruction */
       else        /* check 'call' hook */
@@ -1374,8 +1372,7 @@ returning: /* trap already set */
         do
         {
           setnilvalue(s2v(ra++));
-        }
-        while (b--);
+        } while (b--);
         vmbreak;
       }
       vmcase(OP_GETUPVAL)
@@ -1416,8 +1413,8 @@ returning: /* trap already set */
         TValue *rc = vRC(i);
         lua_Unsigned n;
         if (ttisinteger(rc) /* fast track for integers? */
-                ? (cast_void(n = ivalue(rc)), luaV_fastgeti(L, rb, n, slot))
-                : luaV_fastget(L, rb, rc, slot, luaH_get))
+              ? (cast_void(n = ivalue(rc)), luaV_fastgeti(L, rb, n, slot))
+              : luaV_fastget(L, rb, rc, slot, luaH_get))
         {
           setobj2s(L, ra, slot);
         }
@@ -1481,8 +1478,8 @@ returning: /* trap already set */
         TValue *rc = RKC(i); /* value */
         lua_Unsigned n;
         if (ttisinteger(rb) /* fast track for integers? */
-                ? (cast_void(n = ivalue(rb)), luaV_fastgeti(L, s2v(ra), n, slot))
-                : luaV_fastget(L, s2v(ra), rb, slot, luaH_get))
+              ? (cast_void(n = ivalue(rb)), luaV_fastgeti(L, s2v(ra), n, slot))
+              : luaV_fastget(L, s2v(ra), rb, slot, luaH_get))
         {
           luaV_finishfastset(L, s2v(ra), slot, rc);
         }

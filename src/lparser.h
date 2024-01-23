@@ -137,7 +137,7 @@ typedef struct Dyndata
 struct BlockCnt; /* defined in lparser.c */
 
 /* state needed to generate code for a given function */
-typedef struct FuncState
+typedef struct FuncState // 语法分析器
 {
   Proto *f;               /* current function header */
   struct FuncState *prev; // 单链表节点向后挂 /* enclosing function */

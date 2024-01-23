@@ -1052,8 +1052,8 @@ LUA_API void lua_callk(lua_State *L, int nargs, int nresults, lua_KContext ctx, 
   api_check(L, L->status == LUA_OK, "cannot do calls on non-normal thread");
   checkresults(L, nargs, nresults);
   func = L->top.p - (nargs + 1);
-  if (k != NULL && yieldable(L))
-  {                               /* need to prepare continuation? */
+  if (k != NULL && yieldable(L)) /* need to prepare continuation? */
+  {
     L->ci->u.c.k = k;             /* save continuation */
     L->ci->u.c.ctx = ctx;         /* save context */
     luaD_call(L, func, nresults); /* do the call */

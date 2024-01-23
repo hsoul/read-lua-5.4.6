@@ -78,7 +78,7 @@ LUALIB_API void(luaL_unref)(lua_State *L, int t, int ref);
 
 LUALIB_API int(luaL_loadfilex)(lua_State *L, const char *filename, const char *mode);
 
-#define luaL_loadfile(L, f) luaL_loadfilex(L, f, NULL)
+#define luaL_loadfile(L, f) luaL_loadfilex(L, f, NULL) // 加载完文件，栈中留有一个元素，即根据 file chunk 解析出的顶层函数 LClosure 
 
 LUALIB_API int(luaL_loadbufferx)(lua_State *L, const char *buff, size_t sz, const char *name, const char *mode);
 LUALIB_API int(luaL_loadstring)(lua_State *L, const char *s);

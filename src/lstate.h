@@ -166,14 +166,14 @@ struct CallInfo
   struct CallInfo *previous, *next; /* dynamic call link */
   union
   {
-    struct
-    { /* only for Lua functions */
+    struct /* only for Lua functions */
+    {
       const Instruction *savedpc;
       volatile l_signalT trap;
       int nextraargs; /* # of extra arguments in vararg functions */
     } l;
-    struct
-    {                  /* only for C functions */
+    struct /* only for C functions */
+    {
       lua_KFunction k; /* continuation in case of yields */
       ptrdiff_t old_errfunc;
       lua_KContext ctx; /* context info. in case of yields */
@@ -184,8 +184,8 @@ struct CallInfo
     int funcidx; /* called-function index */
     int nyield;  /* number of values yielded */
     int nres;    /* number of values returned */
-    struct
-    {                           /* info about transferred values (for call/return hooks) */
+    struct       /* info about transferred values (for call/return hooks) */
+    {
       unsigned short ftransfer; /* offset of first value transferred */
       unsigned short ntransfer; /* number of values transferred */
     } transferinfo;

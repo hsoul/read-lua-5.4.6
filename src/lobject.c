@@ -770,8 +770,8 @@ static char *getbuff(BuffFS *buff, int sz)
 */
 static void addstr2buff(BuffFS *buff, const char *str, size_t slen)
 {
-  if (slen <= BUFVFS)
-  { /* does string fit into buffer? */
+  if (slen <= BUFVFS) /* does string fit into buffer? */
+  {
     char *bf = getbuff(buff, cast_int(slen));
     memcpy(bf, str, slen); /* add string to buffer */
     addsize(buff, cast_int(slen));

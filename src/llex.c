@@ -72,11 +72,11 @@ static const char *const luaX_tokens[] = { // 多个字符的token会在初始�
   "<string>" //
 };
 
-#define save_and_next(ls) (save(ls, ls->current), next(ls))
+#define save_and_next(ls) (save(ls, ls->current), next(ls)) // 保存字符到缓冲区，并读取下一个字符
 
 static l_noret lexerror(LexState *ls, const char *msg, int token);
 
-static void save(LexState *ls, int c)
+static void save(LexState *ls, int c) // 保存字符到缓冲区
 {
   Mbuffer *b = ls->buff;
   if (luaZ_bufflen(b) + 1 > luaZ_sizebuffer(b))

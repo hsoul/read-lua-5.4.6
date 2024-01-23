@@ -125,13 +125,13 @@ void luaD_seterrorobj(lua_State *L, int errcode, StkId oldtop)
 
 l_noret luaD_throw(lua_State *L, int errcode)
 {
-  if (L->errorJmp)
-  {                                /* thread has an error handler? */
+  if (L->errorJmp) /* thread has an error handler? */
+  {
     L->errorJmp->status = errcode; /* set status */
     LUAI_THROW(L, L->errorJmp);    /* jump to it */
   }
-  else
-  { /* thread has no error handler */
+  else /* thread has no error handler */
+  {
     global_State *g = G(L);
     errcode = luaE_resetthread(L, errcode); /* close all upvalues */
     if (g->mainthread->errorJmp)
@@ -139,10 +139,10 @@ l_noret luaD_throw(lua_State *L, int errcode)
       setobjs2s(L, g->mainthread->top.p++, L->top.p - 1); /* copy error obj. */
       luaD_throw(g->mainthread, errcode);                 /* re-throw in main thread */
     }
-    else
-    { /* no handler at all; abort */
-      if (g->panic)
-      { /* panic function? */
+    else /* no handler at all; abort */
+    {
+      if (g->panic) /* panic function? */
+      {
         lua_unlock(L);
         g->panic(L); /* call panic function (last chance to jump out) */
       }
@@ -1065,11 +1065,14 @@ int luaD_protectedparser(lua_State *L, ZIO *z, const char *name, const char *mod
   p.dyd.label.arr = NULL;
   p.dyd.label.size = 0;
   luaZ_initbuffer(L, &p.buff);
+
   status = luaD_pcall(L, f_parser, &p, savestack(L, L->top.p), L->errfunc);
+
   luaZ_freebuffer(L, &p.buff);
   luaM_freearray(L, p.dyd.actvar.arr, p.dyd.actvar.size);
   luaM_freearray(L, p.dyd.gt.arr, p.dyd.gt.size);
   luaM_freearray(L, p.dyd.label.arr, p.dyd.label.size);
   decnny(L);
+
   return status;
 }

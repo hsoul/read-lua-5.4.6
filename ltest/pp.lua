@@ -1,8 +1,12 @@
-ga = 1
-gb = nil
-gc = 12.4
-gd = true
-gf = "hello world"
+
+if true then
+  print("a")
+end
+-- ga = 1
+-- gb = nil
+-- gc = 12.4
+-- gd = true
+-- gf = "hello world"
 
 -- local a = 1
 -- b = 1 + a 

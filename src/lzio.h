@@ -20,8 +20,8 @@ typedef struct Zio ZIO;
 typedef struct Mbuffer
 {
   char *buffer;
-  size_t n;
-  size_t buffsize;
+  size_t n; // 缓冲区中的字符数
+  size_t buffsize; // 缓冲区大小
 } Mbuffer;
 
 #define luaZ_initbuffer(L, buff) ((buff)->buffer = NULL, (buff)->buffsize = 0)
@@ -47,9 +47,9 @@ LUAI_FUNC size_t luaZ_read(ZIO *z, void *b, size_t n); /* read next n bytes */
 struct Zio
 {
   size_t n;          /* bytes still unread */
-  const char *p;     /* current position in buffer */
+  const char *p;     // 一块buffer中的指针 /* current position in buffer */
   lua_Reader reader; /* reader function */
-  void *data;        /* additional data */
+  void *data;        // 被加载的对象 /* additional data */
   lua_State *L;      /* Lua state (for reader) */
 };
 

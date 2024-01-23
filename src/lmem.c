@@ -86,10 +86,12 @@ void *luaM_growaux_(lua_State *L, void *block, int nelems, int *psize, int size_
 {
   void *newblock;
   int size = *psize;
+
   if (nelems + 1 <= size) /* does one extra element still fit? */
     return block;         /* nothing to be done */
-  if (size >= limit / 2)
-  {                                /* cannot double it? */
+
+  if (size >= limit / 2) /* cannot double it? */
+  {
     if (l_unlikely(size >= limit)) /* cannot grow even a little? */
       luaG_runerror(L, "too many %s (limit is %d)", what, limit);
     size = limit; /* still have at least one free place */

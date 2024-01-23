@@ -355,8 +355,8 @@ static Upvaldesc *allocupvalue(FuncState *fs)
   Proto *f = fs->f;
   int oldsize = f->sizeupvalues;
   checklimit(fs, fs->nups + 1, MAXUPVAL, "upvalues");
-  luaM_growvector(fs->ls->L, f->upvalues, fs->nups, f->sizeupvalues, Upvaldesc, MAXUPVAL, "upvalues");
-  while (oldsize < f->sizeupvalues)
+  luaM_growvector(fs->ls->L, f->upvalues, fs->nups, f->sizeupvalues, Upvaldesc, MAXUPVAL, "upvalues"); // growvector 保证老数据位置不变，同时 sizeupvalues 有变化也会更新
+  while (oldsize < f->sizeupvalues)                                                                    // 初始化新分配的upvalue数据
     f->upvalues[oldsize++].name = NULL;
   return &f->upvalues[fs->nups++];
 }
@@ -1322,7 +1322,8 @@ static const struct
   {11, 11},
   {11, 11}, /* '*' '%' */
 
-  {14, 13}, /* '^' (right associative) */ // 运算符两侧操作数优先向右结合，故left大于right 
+  {14, 13},
+  /* '^' (right associative) */ // 运算符两侧操作数优先向右结合，故left大于right
 
   {11, 11},
   {11, 11}, /* '/' '//' */
@@ -1400,9 +1401,8 @@ static void expr(LexState *ls, expdesc *v)
 ** =======================================================================
 */
 
-static void block(LexState *ls)
+static void block(LexState *ls) /* block -> statlist */
 {
-  /* block -> statlist */
   FuncState *fs = ls->fs;
   BlockCnt bl;
   enterblock(fs, &bl, 0);
@@ -1768,27 +1768,27 @@ static void test_then_block(LexState *ls, int *escapelist)
   int jf;        /* instruction to skip 'then' code (if condition is false) */
   luaX_next(ls); /* skip IF or ELSEIF */
   expr(ls, &v);  /* read condition */
-  checknext(ls, TK_THEN);
-  if (ls->t.token == TK_BREAK)
-  { /* 'if x then break' ? */
+  checknext(ls, TK_THEN); // check and next, check if current token is TK_THEN and then parse next token
+  if (ls->t.token == TK_BREAK) /* 'if x then break' ? */
+  {
     int line = ls->linenumber;
     luaK_goiffalse(ls->fs, &v); /* will jump if condition is true */
     luaX_next(ls);              /* skip 'break' */
     enterblock(fs, &bl, 0);     /* must enter block before 'goto' */
     newgotoentry(ls, luaS_newliteral(ls->L, "break"), line, v.t);
-    while (testnext(ls, ';'))
+    while (testnext(ls, ';')) /* skip semicolons */
     {
-    } /* skip semicolons */
-    if (block_follow(ls, 0))
-    { /* jump is the entire block? */
+    }
+    if (block_follow(ls, 0)) /* jump is the entire block? */
+    {
       leaveblock(fs);
       return; /* and that is it */
     }
     else /* must skip over 'then' part if condition is false */
       jf = luaK_jump(fs);
   }
-  else
-  {                            /* regular case (not a break) */
+  else /* regular case (not a break) */
+  {
     luaK_goiftrue(ls->fs, &v); /* skip over block if condition is false */
     enterblock(fs, &bl, 0);
     jf = v.f;
@@ -1986,7 +1986,7 @@ static void retstat(LexState *ls)
   testnext(ls, ';'); /* skip optional semicolon */
 }
 
-static void statement(LexState *ls)
+static void statement(LexState *ls) /* stat = statement*/
 {
   int line = ls->linenumber; /* may be needed for error messages */
   enterlevel(ls);
@@ -2069,17 +2069,22 @@ static void mainfunc(LexState *ls, FuncState *fs)
 {
   BlockCnt bl;
   Upvaldesc *env;
+
   open_func(ls, fs, &bl);
-  setvararg(fs, 0);       /* main function is always declared vararg */
-  env = allocupvalue(fs); /* ...set environment upvalue */
+  setvararg(fs, 0); /* main function is always declared vararg */ // various arguments
+
+  env = allocupvalue(fs); /* ...set environment upvalue */ // 文件 chunk 一定有个 upvalue
   env->instack = 1;
   env->idx = 0;
-  env->kind = VDKREG;
+  env->kind = VDKREG; // 普通变量
   env->name = ls->envn;
   luaC_objbarrier(ls->L, fs->f, env->name);
+
   luaX_next(ls); /* read first token */
   statlist(ls);  /* parse main body */
+
   check(ls, TK_EOS);
+
   close_func(ls);
 }
 
@@ -2088,23 +2093,31 @@ LClosure *luaY_parser(lua_State *L, ZIO *z, Mbuffer *buff, Dyndata *dyd, const c
   LexState lexstate;
   FuncState funcstate;
   LClosure *cl = luaF_newLclosure(L, 1); /* create main closure */
-  setclLvalue2s(L, L->top.p, cl);        /* anchor it (to avoid being collected) */
-  luaD_inctop(L);
+
+  setclLvalue2s(L, L->top.p, cl); /* anchor it (to avoid being collected) */
+  luaD_inctop(L);                 // 上面一行是向栈中压入一个LClosure对象，这里是将栈顶指针向上移动一个位置
+
   lexstate.h = luaH_new(L);             /* create table for scanner */
   sethvalue2s(L, L->top.p, lexstate.h); /* anchor it */
-  luaD_inctop(L);
+  luaD_inctop(L);                       // 常量表也压入栈中
+
   funcstate.f = cl->p = luaF_newproto(L);
   luaC_objbarrier(L, cl, cl->p);
   funcstate.f->source = luaS_new(L, name); /* create and anchor TString */
   luaC_objbarrier(L, funcstate.f, funcstate.f->source);
+
   lexstate.buff = buff;
   lexstate.dyd = dyd;
+
   dyd->actvar.n = dyd->gt.n = dyd->label.n = 0;
-  luaX_setinput(L, &lexstate, z, funcstate.f->source, firstchar);
+
+  luaX_setinput(L, &lexstate, z, funcstate.f->source, firstchar); // 初始化词法分析器
   mainfunc(&lexstate, &funcstate);
+
   lua_assert(!funcstate.prev && funcstate.nups == 1 && !lexstate.fs);
-  /* all scopes should be correctly finished */
-  lua_assert(dyd->actvar.n == 0 && dyd->gt.n == 0 && dyd->label.n == 0);
-  L->top.p--; /* remove scanner's table */
-  return cl;  /* closure is on the stack, too */
+  lua_assert(dyd->actvar.n == 0 && dyd->gt.n == 0 && dyd->label.n == 0); /* all scopes should be correctly finished */
+
+  L->top.p--; /* remove scanner's table */ // 把常量表弹出栈
+
+  return cl; /* closure is on the stack, too */
 }

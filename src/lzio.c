@@ -28,7 +28,7 @@ int luaZ_fill(ZIO *z)
   lua_lock(L);
   if (buff == NULL || size == 0) // 文件读取完毕
     return EOZ;
-  z->n = size - 1; /* discount char being returned */
+  z->n = size - 1; /* discount char being returned */ // 先减长度后移动指针
   z->p = buff;
   return cast_uchar(*(z->p++));
 }

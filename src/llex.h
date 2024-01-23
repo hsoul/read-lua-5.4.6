@@ -85,16 +85,15 @@ typedef struct Token
   SemInfo seminfo;
 } Token;
 
-/* state of the lexer plus state of the parser when shared by all
-   functions */
-typedef struct LexState
+/* state of the lexer plus state of the parser when shared by all functions */
+typedef struct LexState // 词法分析器
 {
   int current;          /* current character (charint) */
   int linenumber;       /* input line counter */
   int lastline;         /* line of last token 'consumed' */
   Token t;              /* current token */
   Token lookahead;      // 提前获取的token，如果它存在（不为TK_EOS）,那么词法分析器调用next函数时，它的值直接被获取 /* look ahead token */
-  struct FuncState *fs; // 词法分析器数据实例 /* current function (parser) */
+  struct FuncState *fs; /* current function (parser) */
   struct lua_State *L;  /* */
   ZIO *z;               /* input stream */
   Mbuffer *buff;        // 保留字本身以及TK_NAME、TK_FLOAT、TK_INT和TK_STRING的值，由于不止由一个字符组成，因此token在被完全识别之前，读取出来的字符应当存在buff结构中，当词法分析器攒够一个完整token时，则将其复制到Seminfo.s /* buffer for tokens */

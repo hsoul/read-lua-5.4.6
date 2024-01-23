@@ -565,7 +565,7 @@ typedef struct Proto
 {
   CommonHeader;
   lu_byte numparams;    /* number of fixed (named) parameters */
-  lu_byte is_vararg;    // 标记lua函数参数列表是否为变长参数，0表示不是，1表示是
+  lu_byte is_vararg;    // 标记lua函数参数列表是否为变长参数，0表示不是，1表示是 // various
   lu_byte maxstacksize; /* number of registers needed by this function */
   int sizeupvalues;     /* size of 'upvalues' */
   int sizek;            // constants list size ? /* size of 'k' */
